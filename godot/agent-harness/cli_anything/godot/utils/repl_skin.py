@@ -48,6 +48,7 @@ _ACCENT_COLORS = {
     "kdenlive":    "\033[38;5;69m",    # slate blue
     "shotcut":     "\033[38;5;35m",    # teal green
     "ollama":      "\033[38;5;255m",   # white (Ollama branding)
+    "godot":       "\033[38;5;74m",    # Godot blue (#478cbf)
 }
 _DEFAULT_ACCENT = "\033[38;5;75m"      # default sky blue
 

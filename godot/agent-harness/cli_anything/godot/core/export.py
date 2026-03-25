@@ -1,4 +1,9 @@
-"""Godot project export — build game binaries for target platforms."""
+"""Godot project export — build game binaries for target platforms.
+
+Note: --export-all is available in Godot 4.3+. Earlier 4.x versions
+use --export-release/--export-debug per preset. If export-all fails,
+fall back to exporting each preset individually.
+"""
 
 from pathlib import Path
 

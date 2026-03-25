@@ -147,10 +147,9 @@ def add_node(
 # ---------- internal helpers ----------
 
 def _generate_uid() -> str:
-    """Generate a simple pseudo-UID for scene files."""
-    import random
-    chars = "abcdefghijklmnopqrstuvwxyz0123456789"
-    return "".join(random.choices(chars, k=12))
+    """Generate a UID for scene files using uuid4 for uniqueness."""
+    import uuid
+    return uuid.uuid4().hex[:12]
 
 
 def _parse_tag_attrs(attr_string: str) -> dict:

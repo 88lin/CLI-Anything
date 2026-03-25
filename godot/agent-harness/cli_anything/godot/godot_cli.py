@@ -22,17 +22,12 @@ from cli_anything.godot.utils.godot_backend import (
     find_godot_binary,
 )
 
-# ── Global state ───────────────────────────────────────────────────────
-_json_output = False
-_repl_mode = False
-_project_path: str | None = None
-
 
 # ── Output helpers ─────────────────────────────────────────────────────
 
-def _out(data: dict) -> None:
-    """Print result as JSON or human-readable."""
-    if _json_output:
+def _out(ctx, data: dict) -> None:
+    """Print result as JSON or human-readable based on context."""
+    if ctx.obj.get("json"):
         click.echo(json_mod.dumps(data, indent=2, ensure_ascii=False))
     else:
         status = data.get("status", "")
@@ -67,8 +62,9 @@ def _handle_error(func):
         try:
             return func(*args, **kwargs)
         except RuntimeError as e:
-            _out({"status": "error", "message": str(e)})
-            if not _repl_mode:
+            ctx = click.get_current_context()
+            _out(ctx, {"status": "error", "message": str(e)})
+            if not ctx.obj.get("repl"):
                 sys.exit(1)
     return wrapper
 
@@ -81,19 +77,17 @@ def _handle_error(func):
 @click.pass_context
 def cli(ctx, use_json, project):
     """cli-anything-godot — Agent-native CLI for the Godot game engine."""
-    global _json_output, _project_path
-    _json_output = use_json
-    if project:
-        _project_path = os.path.abspath(project)
     ctx.ensure_object(dict)
-    ctx.obj["project"] = _project_path
+    ctx.obj["json"] = use_json
+    ctx.obj["project"] = os.path.abspath(project) if project else None
+    ctx.obj["repl"] = ctx.obj.get("repl", False)
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
 
 
 def _get_project(ctx) -> str:
-    """Resolve project path from context, global, or cwd."""
-    p = ctx.obj.get("project") or _project_path or os.getcwd()
+    """Resolve project path from context or cwd."""
+    p = ctx.obj.get("project") or os.getcwd()
     return os.path.abspath(p)
 
 
@@ -114,7 +108,7 @@ def project(ctx):
 def project_create(ctx, path, name):
     """Create a new Godot project at PATH."""
     from cli_anything.godot.core.project import create_project
-    _out(create_project(os.path.abspath(path), name))
+    _out(ctx, create_project(os.path.abspath(path), name))
 
 
 @project.command("info")
@@ -123,7 +117,7 @@ def project_create(ctx, path, name):
 def project_info(ctx):
     """Show project metadata from project.godot."""
     from cli_anything.godot.core.project import get_project_info
-    _out(get_project_info(_get_project(ctx)))
+    _out(ctx, get_project_info(_get_project(ctx)))
 
 
 @project.command("scenes")
@@ -132,7 +126,7 @@ def project_info(ctx):
 def project_scenes(ctx):
     """List all scene files (.tscn, .scn) in the project."""
     from cli_anything.godot.core.project import list_scenes
-    _out(list_scenes(_get_project(ctx)))
+    _out(ctx, list_scenes(_get_project(ctx)))
 
 
 @project.command("scripts")
@@ -141,7 +135,7 @@ def project_scenes(ctx):
 def project_scripts(ctx):
     """List all GDScript files (.gd) in the project."""
     from cli_anything.godot.core.project import list_scripts
-    _out(list_scripts(_get_project(ctx)))
+    _out(ctx, list_scripts(_get_project(ctx)))
 
 
 @project.command("resources")
@@ -150,7 +144,7 @@ def project_scripts(ctx):
 def project_resources(ctx):
     """List all resource files (.tres, .res) in the project."""
     from cli_anything.godot.core.project import list_resources
-    _out(list_resources(_get_project(ctx)))
+    _out(ctx, list_resources(_get_project(ctx)))
 
 
 @project.command("reimport")
@@ -159,7 +153,7 @@ def project_resources(ctx):
 def project_reimport(ctx):
     """Force re-import of all project resources via Godot."""
     from cli_anything.godot.core.project import reimport_project
-    _out(reimport_project(_get_project(ctx)))
+    _out(ctx, reimport_project(_get_project(ctx)))
 
 
 # ── Scene commands ─────────────────────────────────────────────────────
@@ -180,7 +174,7 @@ def scene(ctx):
 def scene_create(ctx, scene_path, root_type, root_name):
     """Create a new .tscn scene file at SCENE_PATH (relative to project)."""
     from cli_anything.godot.core.scene import create_scene
-    _out(create_scene(_get_project(ctx), scene_path, root_type, root_name))
+    _out(ctx, create_scene(_get_project(ctx), scene_path, root_type, root_name))
 
 
 @scene.command("read")
@@ -190,7 +184,7 @@ def scene_create(ctx, scene_path, root_type, root_name):
 def scene_read(ctx, scene_path):
     """Parse and display the node tree of a .tscn scene."""
     from cli_anything.godot.core.scene import read_scene
-    _out(read_scene(_get_project(ctx), scene_path))
+    _out(ctx, read_scene(_get_project(ctx), scene_path))
 
 
 @scene.command("add-node")
@@ -203,7 +197,7 @@ def scene_read(ctx, scene_path):
 def scene_add_node(ctx, scene_path, node_name, node_type, parent):
     """Add a child node to an existing scene."""
     from cli_anything.godot.core.scene import add_node
-    _out(add_node(_get_project(ctx), scene_path, node_name, node_type, parent))
+    _out(ctx, add_node(_get_project(ctx), scene_path, node_name, node_type, parent))
 
 
 # ── Export commands ────────────────────────────────────────────────────
@@ -216,7 +210,7 @@ def export_group(ctx):
 
 
 @export_group.command("build")
-@click.option("--preset", default=None, help="Export preset name. Omit to export all.")
+@click.option("--preset", default=None, help="Export preset name. Omit to export all (Godot 4.3+).")
 @click.option("--output", default=None, help="Output file path.")
 @click.option("--debug", is_flag=True, help="Use debug export instead of release.")
 @click.pass_context
@@ -224,7 +218,7 @@ def export_group(ctx):
 def export_build(ctx, preset, output, debug):
     """Build/export the project using configured presets."""
     from cli_anything.godot.core.export import export_project
-    _out(export_project(_get_project(ctx), preset, output, debug))
+    _out(ctx, export_project(_get_project(ctx), preset, output, debug))
 
 
 @export_group.command("presets")
@@ -233,7 +227,7 @@ def export_build(ctx, preset, output, debug):
 def export_presets(ctx):
     """List configured export presets."""
     from cli_anything.godot.core.export import list_export_presets
-    _out(list_export_presets(_get_project(ctx)))
+    _out(ctx, list_export_presets(_get_project(ctx)))
 
 
 # ── Script commands ────────────────────────────────────────────────────
@@ -253,7 +247,7 @@ def script(ctx):
 def script_run(ctx, script_path, timeout):
     """Execute a GDScript file in headless mode. Must extend SceneTree."""
     from cli_anything.godot.core.script import run_script
-    _out(run_script(_get_project(ctx), script_path, timeout))
+    _out(ctx, run_script(_get_project(ctx), script_path, timeout))
 
 
 @script.command("inline")
@@ -262,9 +256,13 @@ def script_run(ctx, script_path, timeout):
 @click.pass_context
 @_handle_error
 def script_inline(ctx, code, timeout):
-    """Run inline GDScript code (wrapped in SceneTree._init)."""
+    """Run inline GDScript code (wrapped in SceneTree._init).
+
+    Security: The provided code is written to a temp file and executed via
+    Godot subprocess. Only use with trusted input.
+    """
     from cli_anything.godot.core.script import run_inline
-    _out(run_inline(_get_project(ctx), code, timeout))
+    _out(ctx, run_inline(_get_project(ctx), code, timeout))
 
 
 @script.command("validate")
@@ -274,7 +272,7 @@ def script_inline(ctx, code, timeout):
 def script_validate(ctx, script_path):
     """Validate GDScript syntax without executing."""
     from cli_anything.godot.core.script import validate_script
-    _out(validate_script(_get_project(ctx), script_path))
+    _out(ctx, validate_script(_get_project(ctx), script_path))
 
 
 # ── Engine commands ────────────────────────────────────────────────────
@@ -287,19 +285,21 @@ def engine(ctx):
 
 
 @engine.command("version")
+@click.pass_context
 @_handle_error
-def engine_version():
+def engine_version(ctx):
     """Show Godot engine version."""
-    _out(get_version())
+    _out(ctx, get_version())
 
 
 @engine.command("status")
+@click.pass_context
 @_handle_error
-def engine_status():
+def engine_status(ctx):
     """Check if Godot binary is available."""
     available = is_available()
     binary = find_godot_binary()
-    _out({
+    _out(ctx, {
         "status": "ok",
         "available": available,
         "binary": binary or "not found",
@@ -312,8 +312,7 @@ def engine_status():
 @click.pass_context
 def session(ctx):
     """Start an interactive REPL session."""
-    global _repl_mode
-    _repl_mode = True
+    ctx.obj["repl"] = True
 
     try:
         from cli_anything.godot.utils.repl_skin import ReplSkin
@@ -328,7 +327,8 @@ def session(ctx):
     from prompt_toolkit.history import InMemoryHistory
 
     prompt_session = PromptSession(history=InMemoryHistory())
-    project_name = os.path.basename(_project_path) if _project_path else "no-project"
+    project_path = ctx.obj.get("project")
+    project_name = os.path.basename(project_path) if project_path else "no-project"
 
     while True:
         try:
@@ -354,7 +354,7 @@ def session(ctx):
                 continue
 
             try:
-                cli.main(args=args, standalone_mode=False)
+                cli.main(args=args, standalone_mode=False, obj=ctx.obj)
             except SystemExit:
                 pass
             except click.exceptions.UsageError as e:
@@ -369,8 +369,6 @@ def session(ctx):
         skin.print_goodbye()
     else:
         click.echo("Goodbye.")
-
-    _repl_mode = False
 
 
 # ── Entry point ────────────────────────────────────────────────────────

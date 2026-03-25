@@ -57,3 +57,12 @@ cli-anything-godot -p ./my-game session
 | `script` | run, inline, validate | GDScript execution |
 | `engine` | version, status | Engine info |
 | `session` | (REPL) | Interactive mode |
+
+## Security Note
+
+The `script inline` command writes user-provided GDScript to a temp file and executes it via Godot subprocess. This runs arbitrary code on the host — only use with trusted input.
+
+## Version Compatibility
+
+- `export build` without `--preset` uses `--export-all` (Godot 4.3+). For older 4.x, specify `--preset` explicitly.
+- Set `GODOT_BIN` environment variable if your Godot binary has a non-standard name.
