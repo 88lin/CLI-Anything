@@ -52,7 +52,7 @@
       "display_name": "Blender",
       "version": "1.0.0",
       "description": "3D modeling, animation, and rendering via blender --background --python",
-      "requires": "blender",
+      "requires": "blender >= 4.2",
       "homepage": "https://www.blender.org",
       "install_cmd": "pip install git+https://github.com/HKUDS/CLI-Anything.git#subdirectory=blender/agent-harness",
       "entry_point": "cli-anything-blender",
