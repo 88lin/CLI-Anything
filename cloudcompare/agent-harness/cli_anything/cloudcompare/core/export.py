@@ -76,12 +76,8 @@ def export_cloud(
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
 
-    if os.path.exists(output_path) and not overwrite:
-        raise FileExistsError(
-            f"Output file already exists: {output_path}. Use overwrite=True."
-        )
-
-    # Determine format from preset or extension
+    # Determine format from preset or extension (must happen before overwrite check
+    # because a preset can change the output file extension).
     if preset:
         preset = preset.lower()
         if preset not in CLOUD_PRESETS:
@@ -96,6 +92,11 @@ def export_cloud(
         out_ext = os.path.splitext(output_path)[1].lstrip(".").lower()
         fmt = CLOUD_FORMATS.get(out_ext, "ASC")
         ext = out_ext
+
+    if os.path.exists(output_path) and not overwrite:
+        raise FileExistsError(
+            f"Output file already exists: {output_path}. Use overwrite=True."
+        )
 
     result = open_and_save(input_path, output_path, extra_args)
 
@@ -143,11 +144,7 @@ def export_mesh(
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
 
-    if os.path.exists(output_path) and not overwrite:
-        raise FileExistsError(
-            f"Output file already exists: {output_path}. Use overwrite=True."
-        )
-
+    # Resolve preset before overwrite check — preset can change the output extension.
     if preset:
         preset = preset.lower()
         if preset not in MESH_PRESETS:
@@ -161,6 +158,11 @@ def export_mesh(
         out_ext = os.path.splitext(output_path)[1].lstrip(".").lower()
         fmt = MESH_FORMATS.get(out_ext, "OBJ")
         ext = out_ext
+
+    if os.path.exists(output_path) and not overwrite:
+        raise FileExistsError(
+            f"Output file already exists: {output_path}. Use overwrite=True."
+        )
 
     args = [
         "-O", input_path,

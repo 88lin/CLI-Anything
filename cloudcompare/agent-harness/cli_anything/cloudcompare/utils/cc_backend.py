@@ -170,6 +170,13 @@ def subsample(
 
     if method == "OCTREE":
         param_str = str(int(parameter))
+    elif method == "RANDOM":
+        count = int(parameter)
+        if count <= 0:
+            raise ValueError(
+                f"RANDOM subsampling parameter must be a positive integer point count, got {parameter!r}"
+            )
+        param_str = str(count)
     else:
         param_str = str(parameter)
 
@@ -891,7 +898,9 @@ def extract_connected_components(
         returncode.
     """
     input_path = os.path.abspath(input_path)
+    output_dir = os.path.abspath(output_dir)
     in_dir = os.path.dirname(input_path)
+    input_stem = os.path.splitext(os.path.basename(input_path))[0]
     fmt = CLOUD_FORMATS.get(output_fmt.lower(), "ASC")
 
     args = [
@@ -914,10 +923,22 @@ def extract_connected_components(
 
     result = run_cloudcompare(args, cwd=in_dir)
 
+    # Restrict matching to the current input stem to avoid picking up leftovers.
     components = sorted(
-        glob.glob(os.path.join(in_dir, f"*_COMPONENT_*.{actual_ext}"))
+        glob.glob(os.path.join(in_dir, f"{input_stem}_COMPONENT_*.{actual_ext}"))
     )
-    result["output_dir"] = in_dir
+
+    # Move components to output_dir if it differs from in_dir.
+    if os.path.abspath(output_dir) != os.path.abspath(in_dir):
+        os.makedirs(output_dir, exist_ok=True)
+        moved = []
+        for c in components:
+            dest = os.path.join(output_dir, os.path.basename(c))
+            shutil.move(c, dest)
+            moved.append(dest)
+        components = sorted(moved)
+
+    result["output_dir"] = output_dir
     result["components"] = components
     result["component_count"] = len(components)
     return result

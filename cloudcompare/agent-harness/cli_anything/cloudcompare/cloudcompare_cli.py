@@ -173,7 +173,6 @@ def repl(ctx: click.Context, project: Optional[str]) -> None:
     # Build command reference
     commands = {
         "project new -o <file>":   "Create a new project",
-        "project open -p <file>":  "Open an existing project",
         "project info":            "Show project status",
         "cloud add <file>":        "Add a cloud to the project",
         "cloud list":              "List loaded clouds",
@@ -228,10 +227,21 @@ def repl(ctx: click.Context, project: Optional[str]) -> None:
                 standalone_mode=False,
                 obj={"project": session.project_path if session else None, "json": json_mode},
             )
-            # Update session reference if project was created/opened
-            if session is None and ctx.obj and ctx.obj.get("project"):
-                project_path = ctx.obj["project"]
-                session = Session(project_path)
+            # Update session when project new or explicit -p/--project is used
+            new_path: Optional[str] = None
+            raw = line.split()
+            if len(raw) >= 2 and raw[0] == "project" and raw[1] == "new":
+                for i, tok in enumerate(raw):
+                    if tok in ("-o", "--output") and i + 1 < len(raw):
+                        new_path = raw[i + 1]
+                        break
+            elif "--project" in raw or "-p" in raw:
+                for i, tok in enumerate(raw):
+                    if tok in ("--project", "-p") and i + 1 < len(raw):
+                        new_path = raw[i + 1]
+                        break
+            if new_path:
+                session = Session(new_path)
         except SystemExit:
             pass
         except click.UsageError as e:

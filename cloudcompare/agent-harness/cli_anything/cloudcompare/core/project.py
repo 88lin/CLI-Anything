@@ -7,12 +7,17 @@ A 'project' is a JSON file tracking:
 - Operation history for undo/redo
 """
 
-import fcntl
 import json
 import os
 import time
 from pathlib import Path
 from typing import Any, Optional
+
+try:
+    import fcntl as _fcntl
+    _HAS_FCNTL = True
+except ImportError:
+    _HAS_FCNTL = False
 
 
 # ── JSON locking helper ──────────────────────────────────────────────────────
@@ -28,10 +33,11 @@ def _locked_save_json(path: str, data: dict, **dump_kwargs) -> None:
     with f:
         _locked = False
         try:
-            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
-            _locked = True
-        except (ImportError, OSError):
-            pass                        # Windows / unsupported FS — proceed unlocked
+            if _HAS_FCNTL:
+                _fcntl.flock(f.fileno(), _fcntl.LOCK_EX)
+                _locked = True
+        except OSError:
+            pass                        # unsupported FS — proceed unlocked
         try:
             f.seek(0)
             f.truncate()
@@ -39,7 +45,7 @@ def _locked_save_json(path: str, data: dict, **dump_kwargs) -> None:
             f.flush()
         finally:
             if _locked:
-                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+                _fcntl.flock(f.fileno(), _fcntl.LOCK_UN)
 
 
 # ── Project data model ───────────────────────────────────────────────────────

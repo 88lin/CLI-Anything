@@ -758,7 +758,7 @@ Each application received complete, production-ready CLI interfaces — not demo
 <td align="center">✅ 19</td>
 </tr>
 <tr>
-<td align="center"><strong>☁️ CloudCompare</strong></td>
+<td align="center"><strong>🅲🅲 CloudCompare</strong></td>
 <td>3D Point Cloud & Mesh</td>
 <td><code>cli-anything-cloudcompare</code></td>
 <td>CloudCompare CLI (headless)</td>
@@ -766,11 +766,11 @@ Each application received complete, production-ready CLI interfaces — not demo
 </tr>
 <tr>
 <td align="center" colspan="4"><strong>Total</strong></td>
-<td align="center"><strong>✅ 1,946</strong></td>
+<td align="center"><strong>✅ 2,005</strong></td>
 </tr>
 </table>
 
-> **100% pass rate** across all 1,946 tests — 1,404 unit tests + 523 end-to-end tests + 19 Node.js tests.
+> **100% pass rate** across all 2,005 tests — 1,453 unit tests + 533 end-to-end tests + 19 Node.js tests.
 
 ---
 

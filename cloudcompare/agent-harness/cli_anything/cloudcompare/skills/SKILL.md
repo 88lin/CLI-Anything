@@ -34,7 +34,7 @@ cli-anything-cloudcompare
 cli-anything-cloudcompare project new -o project.json
 
 # Run with JSON output (for agent consumption)
-cli-anything-cloudcompare --json project info -p project.json
+cli-anything-cloudcompare --project project.json --json project info
 ```
 
 ## Examples
@@ -51,13 +51,13 @@ cli-anything-cloudcompare --json project new -o myproject.json
 
 ### Interactive REPL Session
 
-Start an interactive session with undo/redo support.
+Start an interactive session with undo support.
 
 ```bash
 cli-anything-cloudcompare
 # Enter commands interactively
 # Use 'help' to see available commands
-# Use 'undo' and 'redo' for history navigation
+# Use 'session undo' to revert the last operation
 ```
 
 ## For AI Agents

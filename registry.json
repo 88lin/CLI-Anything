@@ -400,7 +400,7 @@
     {
       "name": "cloudcompare",
       "display_name": "CloudCompare",
-      "version": "0.1.0",
+      "version": "1.0.0",
       "description": "3D point cloud and mesh processing: load/save, color ops, normal estimation, Delaunay meshing, noise filtering, ICP registration, connected component segmentation",
       "requires": "cloudcompare (CloudCompare application installed, e.g. via Flatpak or package manager)",
       "homepage": "https://cloudcompare.org",
