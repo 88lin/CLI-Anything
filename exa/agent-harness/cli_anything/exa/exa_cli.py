@@ -1,17 +1,12 @@
-"""
-exa_cli.py — CLI harness for Exa.
+"""exa_cli.py — CLI harness for Exa.
 
-Provides a stateful, agent-native command-line interface for the Exa API:
+Provides an agent-native command-line interface for the Exa API:
   - web search (neural, keyword, or deep)
-  - find-similar pages
   - fetch full page contents
-  - LLM-synthesised answers with citations
 
 Usage (non-interactive):
     cli-anything-exa search "AI safety papers 2024" --type deep --content highlights
-    cli-anything-exa similar https://example.com --num-results 5
     cli-anything-exa contents https://example.com --content text
-    cli-anything-exa answer "What is Exa's neural search?"
     cli-anything-exa --json search "latest LLM benchmarks" --num-results 3
     cli-anything-exa server status
 
@@ -27,9 +22,7 @@ from typing import Any
 
 import click
 
-from cli_anything.exa.core import answer as answer_core
 from cli_anything.exa.core import search as search_core
-from cli_anything.exa.core import session as session_core
 from cli_anything.exa.utils.exa_backend import check_connectivity
 
 # ---------------------------------------------------------------------------
@@ -56,16 +49,9 @@ def _pretty(data: Any) -> None:
     if isinstance(data, dict):
         if "results" in data:
             _print_results(data)
-        elif "answer" in data:
-            _print_answer(data)
         elif "ok" in data:
             status = "OK" if data["ok"] else "ERROR"
             click.echo(f"[{status}] {data.get('message', '')}")
-        elif "total_queries" in data:
-            click.echo(f"Queries this session : {data['total_queries']}")
-            click.echo(f"Commands used        : {', '.join(data['commands_used']) or 'none'}")
-            if data["last_query"]:
-                click.echo(f"Last query           : {data['last_query']}")
         else:
             # Generic dict fallback
             for k, v in data.items():
@@ -114,20 +100,6 @@ def _print_results(data: dict[str, Any]) -> None:
         total = cost.get("total", "") if isinstance(cost, dict) else cost
         click.echo(f"Cost: ${total}")
     click.echo(f"{'─' * 72}")
-
-
-def _print_answer(data: dict[str, Any]) -> None:
-    click.echo(f"\n{data.get('answer', '')}\n")
-    citations = data.get("citations", [])
-    if citations:
-        click.echo("Sources:")
-        for i, c in enumerate(citations, 1):
-            click.echo(f"  {i}. {c.get('title') or c.get('url', '')}")
-            click.echo(f"     {c.get('url', '')}")
-    cost = data.get("cost_dollars")
-    if cost:
-        total = cost.get("total", "") if isinstance(cost, dict) else cost
-        click.echo(f"\nCost: ${total}")
 
 
 def _err(msg: str) -> None:
@@ -249,25 +221,6 @@ def search_cmd(
         content_mode=content_mode,
         freshness=freshness,
     )
-    session_core.record(query, "search", len(result.get("results", [])))
-    _out(result)
-
-
-# ---------------------------------------------------------------------------
-# similar
-# ---------------------------------------------------------------------------
-
-@cli.command("similar")
-@click.argument("url")
-@click.option("--num-results", "-n", default=10, show_default=True,
-              type=click.IntRange(1, 100), help="Number of results.")
-@click.option("--content", "content_mode", default="highlights", show_default=True,
-              type=_CONTENT_CHOICES, help="Content to include with each result.")
-@_handle_errors
-def similar_cmd(url: str, num_results: int, content_mode: str) -> None:
-    """Find pages similar to a given URL."""
-    result = search_core.find_similar(url, num_results=num_results, content_mode=content_mode)
-    session_core.record(url, "similar", len(result.get("results", [])))
     _out(result)
 
 
@@ -287,21 +240,6 @@ def similar_cmd(url: str, num_results: int, content_mode: str) -> None:
 def contents_cmd(urls: tuple[str, ...], content_mode: str, freshness: str) -> None:
     """Fetch full page contents for one or more URLs."""
     result = search_core.get_contents(list(urls), content_mode=content_mode, freshness=freshness)
-    session_core.record(str(urls[0]), "contents", len(result.get("results", [])))
-    _out(result)
-
-
-# ---------------------------------------------------------------------------
-# answer
-# ---------------------------------------------------------------------------
-
-@cli.command("answer")
-@click.argument("query")
-@_handle_errors
-def answer_cmd(query: str) -> None:
-    """Get an LLM-synthesised answer with cited sources."""
-    result = answer_core.get_answer(query)
-    session_core.record(query, "answer", len(result.get("citations", [])))
     _out(result)
 
 
@@ -323,40 +261,6 @@ def server_status() -> None:
 
 
 # ---------------------------------------------------------------------------
-# session
-# ---------------------------------------------------------------------------
-
-@cli.group("session")
-def session_group() -> None:
-    """Inspect the current REPL session state."""
-
-
-@session_group.command("status")
-def session_status() -> None:
-    """Show a summary of activity in this session."""
-    _out(session_core.get_status())
-
-
-@session_group.command("history")
-def session_history() -> None:
-    """List queries made in this session (most recent first)."""
-    history = session_core.get_history()
-    if _json_output:
-        click.echo(json.dumps(history, indent=2))
-    else:
-        if not history:
-            click.echo("No queries yet.")
-            return
-        click.echo(f"{'Time':<10} {'Cmd':<10} {'Results':<9} Query")
-        click.echo("─" * 72)
-        for entry in history:
-            click.echo(
-                f"{entry['time']:<10} {entry['command']:<10} "
-                f"{entry['results']:<9} {entry['query']}"
-            )
-
-
-# ---------------------------------------------------------------------------
 # REPL
 # ---------------------------------------------------------------------------
 
@@ -370,10 +274,8 @@ def repl() -> None:
         sys.exit(1)
 
     skin = ReplSkin(
-        software_name="Exa",
+        software="exa",
         version="1.0.0",
-        accent_color="cyan",
-        skill_package="cli_anything.exa",
     )
     skin.print_banner()
 

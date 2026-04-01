@@ -3,9 +3,9 @@
 ## Overview
 
 `cli-anything-exa` is a CLI harness for the [Exa API](https://exa.ai), an AI-native search
-engine built on neural embeddings rather than keyword matching. This harness makes all
+engine built on neural embeddings rather than keyword matching. This harness makes
 core Exa capabilities available to any AI coding agent (Claude Code, Codex, OpenCode, etc.)
-via a structured, stateful command-line interface.
+via a structured command-line interface.
 
 ## Backend
 
@@ -17,27 +17,16 @@ Authentication uses `EXA_API_KEY` from the environment — no server process is 
 ```
 cli-anything-exa [--json]
 ├── search   <query>          Neural/keyword/deep web search
-├── similar  <url>            Find pages related to a URL
 ├── contents <url> [url …]   Fetch full-text or highlighted page content
-├── answer   <query>          LLM-synthesised answer with citations
-├── server   status           Verify API key and connectivity
-└── session
-    ├── status                Session summary
-    └── history               Per-query history (most recent first)
+└── server   status           Verify API key and connectivity
 ```
-
-## State Model
-
-Session state (search history) is held in memory in `core/session.py`. It is scoped to
-the process lifetime and is intended for REPL use — agents in non-interactive mode
-receive stateless JSON responses on each invocation.
 
 ## Output Strategy
 
 All commands emit human-readable output by default and structured JSON when `--json` is
 passed at the root level. JSON output is the recommended mode for agent pipelines.
 
-JSON result shape for search/similar/contents:
+JSON result shape for search/contents:
 ```json
 {
   "results": [
@@ -55,23 +44,11 @@ JSON result shape for search/similar/contents:
 }
 ```
 
-JSON result shape for answer:
-```json
-{
-  "answer": "...",
-  "citations": [{"title": "...", "url": "..."}],
-  "cost_dollars": {"total": 0.003}
-}
-```
-
 ## Design Decisions
 
 **`highlights` as default content mode** — Exa highlights are 10× more token-efficient
 than full text and are sufficient for most agent retrieval tasks. Full text is available
 via `--content text` when needed.
-
-**No streaming in v1** — The `answer` endpoint supports SSE streaming but CLI streaming
-complicates JSON parsing for agents. Deferred to a future iteration.
 
 **Research commands deferred** — Exa's async deep researcher (`/research/v1`) has a
 start→poll→get lifecycle that warrants a separate v2 PR with proper state persistence.
@@ -92,9 +69,7 @@ exa/agent-harness/
     ├── exa_cli.py                 Entry point, Click command tree, REPL
     ├── README.md                  Setup and usage guide
     ├── core/
-    │   ├── search.py              web_search(), find_similar(), get_contents()
-    │   ├── answer.py              get_answer()
-    │   └── session.py             In-session history and status
+    │   └── search.py              web_search(), get_contents()
     ├── utils/
     │   ├── exa_backend.py         SDK client init, contents/category helpers
     │   └── repl_skin.py           Shared REPL terminal UI

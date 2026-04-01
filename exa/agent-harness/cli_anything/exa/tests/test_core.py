@@ -15,21 +15,12 @@ import pytest
 from click.testing import CliRunner
 
 from cli_anything.exa.exa_cli import cli
-from cli_anything.exa.core import session as session_core
 from cli_anything.exa.utils.exa_backend import build_contents_param, CATEGORY_SLUG_MAP
 
 
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
-
-@pytest.fixture(autouse=True)
-def clear_session():
-    """Reset session history before each test."""
-    session_core.clear()
-    yield
-    session_core.clear()
-
 
 @pytest.fixture()
 def runner():
@@ -53,21 +44,6 @@ def _mock_result(n: int = 2):
         for i in range(n)
     ]
     return SimpleNamespace(results=results, cost_dollars={"total": 0.005})
-
-
-def _mock_answer():
-    citation = SimpleNamespace(
-        title="Some Paper",
-        url="https://example.com/paper",
-        published_date="2024-01-01",
-        author="Jane Doe",
-    )
-    return SimpleNamespace(
-        answer="Exa uses neural embeddings for search.",
-        results=[citation],
-        cost_dollars={"total": 0.003},
-    )
-    return response
 
 
 # ---------------------------------------------------------------------------
@@ -117,40 +93,6 @@ class TestCategorySlugMap:
 
 
 # ---------------------------------------------------------------------------
-# Session unit tests
-# ---------------------------------------------------------------------------
-
-class TestSession:
-    def test_empty_session(self):
-        status = session_core.get_status()
-        assert status["total_queries"] == 0
-        assert status["last_query"] is None
-
-    def test_record_and_history(self):
-        session_core.record("test query", "search", 5)
-        history = session_core.get_history()
-        assert len(history) == 1
-        assert history[0]["query"] == "test query"
-        assert history[0]["results"] == 5
-
-    def test_history_most_recent_first(self):
-        session_core.record("first", "search", 1)
-        session_core.record("second", "answer", 2)
-        history = session_core.get_history()
-        assert history[0]["query"] == "second"
-        assert history[1]["query"] == "first"
-
-    def test_status_after_records(self):
-        session_core.record("q1", "search", 3)
-        session_core.record("q2", "answer", 1)
-        status = session_core.get_status()
-        assert status["total_queries"] == 2
-        assert "search" in status["commands_used"]
-        assert "answer" in status["commands_used"]
-        assert status["last_query"] == "q2"
-
-
-# ---------------------------------------------------------------------------
 # CLI parsing tests
 # ---------------------------------------------------------------------------
 
@@ -167,25 +109,12 @@ class TestCLIHelp:
         assert "--num-results" in result.output
         assert "--content" in result.output
 
-    def test_similar_help(self, runner):
-        result = runner.invoke(cli, ["similar", "--help"])
-        assert result.exit_code == 0
-        assert "--num-results" in result.output
-
     def test_contents_help(self, runner):
         result = runner.invoke(cli, ["contents", "--help"])
         assert result.exit_code == 0
 
-    def test_answer_help(self, runner):
-        result = runner.invoke(cli, ["answer", "--help"])
-        assert result.exit_code == 0
-
     def test_server_status_help(self, runner):
         result = runner.invoke(cli, ["server", "status", "--help"])
-        assert result.exit_code == 0
-
-    def test_session_help(self, runner):
-        result = runner.invoke(cli, ["session", "--help"])
         assert result.exit_code == 0
 
 
@@ -255,29 +184,6 @@ class TestSearchCLI:
         assert result.exit_code != 0
 
 
-class TestSimilarCLI:
-    @patch("cli_anything.exa.core.search.get_client")
-    def test_basic_similar(self, mock_get_client, runner):
-        mock_client = MagicMock()
-        mock_client.find_similar.return_value = _mock_result(3)
-        mock_get_client.return_value = mock_client
-
-        result = runner.invoke(cli, ["similar", "https://example.com"])
-        assert result.exit_code == 0
-        mock_client.find_similar.assert_called_once()
-
-    @patch("cli_anything.exa.core.search.get_client")
-    def test_similar_json_output(self, mock_get_client, runner):
-        mock_client = MagicMock()
-        mock_client.find_similar.return_value = _mock_result(2)
-        mock_get_client.return_value = mock_client
-
-        result = runner.invoke(cli, ["--json", "similar", "https://example.com"])
-        assert result.exit_code == 0
-        data = json.loads(result.output)
-        assert "results" in data
-
-
 class TestContentsCLI:
     @patch("cli_anything.exa.core.search.get_client")
     def test_basic_contents(self, mock_get_client, runner):
@@ -303,30 +209,6 @@ class TestContentsCLI:
         assert len(args[0]) == 2
 
 
-class TestAnswerCLI:
-    @patch("cli_anything.exa.core.answer.get_client")
-    def test_basic_answer(self, mock_get_client, runner):
-        mock_client = MagicMock()
-        mock_client.answer.return_value = _mock_answer()
-        mock_get_client.return_value = mock_client
-
-        result = runner.invoke(cli, ["answer", "What is Exa?"])
-        assert result.exit_code == 0
-        assert "neural embeddings" in result.output
-
-    @patch("cli_anything.exa.core.answer.get_client")
-    def test_answer_json_output(self, mock_get_client, runner):
-        mock_client = MagicMock()
-        mock_client.answer.return_value = _mock_answer()
-        mock_get_client.return_value = mock_client
-
-        result = runner.invoke(cli, ["--json", "answer", "What is Exa?"])
-        assert result.exit_code == 0
-        data = json.loads(result.output)
-        assert "answer" in data
-        assert "citations" in data
-
-
 class TestServerCLI:
     @patch("cli_anything.exa.exa_cli.check_connectivity")
     def test_server_status_ok(self, mock_check, runner):
@@ -349,37 +231,6 @@ class TestServerCLI:
         assert result.exit_code == 0
         data = json.loads(result.output)
         assert data["ok"] is True
-
-
-class TestSessionCLI:
-    @patch("cli_anything.exa.core.search.get_client")
-    def test_session_status_after_search(self, mock_get_client, runner):
-        mock_client = MagicMock()
-        mock_client.search.return_value = _mock_result(3)
-        mock_get_client.return_value = mock_client
-
-        runner.invoke(cli, ["search", "test query"])
-        result = runner.invoke(cli, ["session", "status"])
-        assert result.exit_code == 0
-        assert "1" in result.output  # total_queries
-
-    def test_session_history_empty(self, runner):
-        result = runner.invoke(cli, ["session", "history"])
-        assert result.exit_code == 0
-        assert "No queries" in result.output
-
-    @patch("cli_anything.exa.core.search.get_client")
-    def test_session_history_json(self, mock_get_client, runner):
-        mock_client = MagicMock()
-        mock_client.search.return_value = _mock_result(2)
-        mock_get_client.return_value = mock_client
-
-        runner.invoke(cli, ["search", "test"])
-        result = runner.invoke(cli, ["--json", "session", "history"])
-        assert result.exit_code == 0
-        data = json.loads(result.output)
-        assert isinstance(data, list)
-        assert data[0]["query"] == "test"
 
 
 class TestErrorHandling:

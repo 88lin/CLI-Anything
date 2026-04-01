@@ -22,16 +22,11 @@
 - [x] Hyphenated slugs map correctly to API space-separated values
 - [x] Simple slugs pass through unchanged
 
-### TestSession
-- [x] Empty session returns zero totals
-- [x] `record()` adds entries visible in `get_history()`
-- [x] History returned most-recent-first
-- [x] Status reflects all distinct commands used
-
 ### TestCLIHelp
 - [x] Root `--help` exits 0 and mentions "Exa"
 - [x] `search --help` shows all flags
-- [x] All subcommand `--help` exits exit code 0
+- [x] `contents --help` exits exit code 0
+- [x] `server status --help` exits exit code 0
 
 ### TestSearchCLI
 - [x] Basic search calls `exa.search()` with correct query
@@ -41,27 +36,14 @@
 - [x] `--include-domains` is forwarded to SDK
 - [x] Invalid `--type` value is rejected (exit != 0)
 
-### TestSimilarCLI
-- [x] Basic call invokes `exa.find_similar()`
-- [x] `--json` produces parseable JSON
-
 ### TestContentsCLI
 - [x] Single URL invokes `exa.get_contents()`
 - [x] Multiple URLs forwarded as list
-
-### TestAnswerCLI
-- [x] Answer text appears in output
-- [x] `--json` produces `answer` and `citations` keys
 
 ### TestServerCLI
 - [x] `[OK]` shown on success
 - [x] `[ERROR]` shown on failure
 - [x] `--json` produces `{"ok": true}`
-
-### TestSessionCLI
-- [x] `session status` shows query count after search
-- [x] `session history` shows "No queries" when empty
-- [x] `session history --json` returns a list
 
 ### TestErrorHandling
 - [x] `RuntimeError` from backend produces `{"error": "..."}` in JSON mode
@@ -84,21 +66,11 @@ Skipped automatically when `EXA_API_KEY` is not set.
 - [ ] `--include-domains arxiv.org` — all result URLs contain `arxiv.org`
 - [ ] `--num-results 5` returns ≤ 5 results
 - [ ] Human-readable output contains `http`
-- [ ] Session is updated after search
-
-### TestSimilarE2E
-- [ ] `similar <url>` returns results
-- [ ] Results contain `url` and `title`
 
 ### TestContentsE2E
 - [ ] `contents <url>` returns results
 - [ ] `--content text` result has non-empty `text`
 - [ ] Multiple URLs: at least 1 result returned
-
-### TestAnswerE2E
-- [ ] `answer <question>` returns `answer` string (> 10 chars)
-- [ ] `answer` result has `citations` list
-- [ ] Human-readable output is non-empty
 
 ### TestEntryPoint
 - [ ] `cli-anything-exa --help` exits 0 via subprocess

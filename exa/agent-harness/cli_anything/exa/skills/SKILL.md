@@ -9,8 +9,7 @@
 ## What This CLI Does
 Provides an agent-native command-line interface to the Exa API — a neural search engine
 optimised for AI agent workflows. Supports web search across multiple modes (fast, deep,
-deep-reasoning), finding similar pages, fetching full-text or highlighted page contents,
-and getting LLM-synthesised answers with cited sources.
+deep-reasoning) and fetching full-text or highlighted page contents.
 
 ## Prerequisites
 - Python >= 3.10
@@ -41,30 +40,14 @@ Options:
   --location CC  Two-letter country code for geo-bias
 ```
 
-### similar — Find similar pages
-```bash
-cli-anything-exa similar "<url>" [--num-results N] [--content highlights|text|summary|none]
-```
-
 ### contents — Fetch page contents
 ```bash
 cli-anything-exa contents <url> [url ...] [--content text|highlights|summary] [--freshness smart|always|never]
 ```
 
-### answer — LLM-synthesised answer with citations
-```bash
-cli-anything-exa answer "<question>"
-```
-
 ### server status — Verify API key and connectivity
 ```bash
 cli-anything-exa server status
-```
-
-### session — Inspect current REPL session
-```bash
-cli-anything-exa session status
-cli-anything-exa session history
 ```
 
 ## JSON Output
@@ -100,19 +83,9 @@ cli-anything-exa --json search "Anthropic funding history" --category company
 cli-anything-exa --json search "AI regulation news" --category news --from 2024-01-01
 ```
 
-### Find related resources
-```bash
-cli-anything-exa --json similar https://arxiv.org/abs/2303.08774 --num-results 10
-```
-
 ### Fetch full content for summarisation
 ```bash
 cli-anything-exa --json contents https://example.com/article --content text
-```
-
-### Quick factual answer
-```bash
-cli-anything-exa --json answer "What is the context window of Claude 3.5 Sonnet?"
 ```
 
 ## Interactive REPL

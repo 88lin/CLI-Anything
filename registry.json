@@ -471,7 +471,7 @@
       "name": "exa",
       "display_name": "Exa",
       "version": "1.0.0",
-      "description": "AI-powered web search, similar-page discovery, and LLM-synthesised answers via the Exa API",
+      "description": "AI-powered web search and content extraction via the Exa API",
       "requires": "EXA_API_KEY (free tier at exa.ai)",
       "homepage": "https://exa.ai",
       "install_cmd": "pip install git+https://github.com/HKUDS/CLI-Anything.git#subdirectory=exa/agent-harness",

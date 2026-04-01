@@ -1,5 +1,5 @@
 """
-core/search.py — Web search, find-similar, and get-contents operations.
+core/search.py — Web search and get-contents operations.
 """
 
 from __future__ import annotations
@@ -56,24 +56,6 @@ def web_search(
         kwargs["contents"] = contents
 
     response = client.search(query, **kwargs)
-    return _response_to_dict(response)
-
-
-def find_similar(
-    url: str,
-    *,
-    num_results: int = 10,
-    content_mode: str = "highlights",
-) -> dict[str, Any]:
-    """Find pages similar to the given URL."""
-    client = get_client()
-    contents = build_contents_param(content_mode, "smart")
-
-    kwargs: dict[str, Any] = {"num_results": num_results}
-    if contents:
-        kwargs["contents"] = contents
-
-    response = client.find_similar(url, **kwargs)
     return _response_to_dict(response)
 
 

@@ -21,7 +21,6 @@ import pytest
 
 from click.testing import CliRunner
 from cli_anything.exa.exa_cli import cli
-from cli_anything.exa.core import session as session_core
 
 
 # ---------------------------------------------------------------------------
@@ -32,13 +31,6 @@ pytestmark = pytest.mark.skipif(
     not os.environ.get("EXA_API_KEY"),
     reason="EXA_API_KEY not set — skipping E2E tests",
 )
-
-
-@pytest.fixture(autouse=True)
-def clear_session():
-    session_core.clear()
-    yield
-    session_core.clear()
 
 
 @pytest.fixture()
@@ -158,37 +150,6 @@ class TestSearchE2E:
         assert result.exit_code == 0
         assert "http" in result.output  # URL is shown
 
-    def test_search_records_session(self, runner):
-        runner.invoke(cli, ["--json", "search", "test query"])
-        status = session_core.get_status()
-        assert status["total_queries"] == 1
-        assert status["last_query"] == "test query"
-
-
-# ---------------------------------------------------------------------------
-# similar
-# ---------------------------------------------------------------------------
-
-class TestSimilarE2E:
-    def test_basic_similar(self, runner):
-        result = runner.invoke(
-            cli, ["--json", "similar", "https://arxiv.org/abs/2303.08774", "--num-results", "3"]
-        )
-        assert result.exit_code == 0
-        data = json.loads(result.output)
-        assert "results" in data
-        assert len(data["results"]) > 0
-
-    def test_similar_result_fields(self, runner):
-        result = runner.invoke(
-            cli, ["--json", "similar", "https://openai.com/research/gpt-4", "--num-results", "2"]
-        )
-        assert result.exit_code == 0
-        data = json.loads(result.output)
-        r = data["results"][0]
-        assert "url" in r
-        assert "title" in r
-
 
 # ---------------------------------------------------------------------------
 # contents
@@ -222,31 +183,6 @@ class TestContentsE2E:
         assert result.exit_code == 0
         data = json.loads(result.output)
         assert len(data["results"]) >= 1
-
-
-# ---------------------------------------------------------------------------
-# answer
-# ---------------------------------------------------------------------------
-
-class TestAnswerE2E:
-    def test_basic_answer(self, runner):
-        result = runner.invoke(cli, ["--json", "answer", "What is Exa's neural search?"])
-        assert result.exit_code == 0
-        data = json.loads(result.output)
-        assert "answer" in data
-        assert len(data["answer"]) > 10
-
-    def test_answer_has_citations(self, runner):
-        result = runner.invoke(cli, ["--json", "answer", "How does Exa differ from Google?"])
-        assert result.exit_code == 0
-        data = json.loads(result.output)
-        assert "citations" in data
-        assert isinstance(data["citations"], list)
-
-    def test_answer_human_readable(self, runner):
-        result = runner.invoke(cli, ["answer", "What is RAG in AI?"])
-        assert result.exit_code == 0
-        assert len(result.output.strip()) > 0
 
 
 # ---------------------------------------------------------------------------

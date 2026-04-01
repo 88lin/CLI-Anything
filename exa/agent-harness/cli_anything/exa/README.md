@@ -1,6 +1,6 @@
 # cli-anything-exa
 
-Agent-native CLI harness for [Exa](https://exa.ai) — AI-powered web search, similar-page discovery, full-text content extraction, and LLM-synthesised answers.
+Agent-native CLI harness for [Exa](https://exa.ai) — AI-powered web search and full-text content extraction.
 
 ## HOW TO RUN
 
@@ -46,19 +46,9 @@ Expected output:
 cli-anything-exa search "large language models 2024" --type deep --content highlights
 ```
 
-**Find similar pages:**
-```bash
-cli-anything-exa similar https://arxiv.org/abs/2303.08774 --num-results 5
-```
-
 **Fetch page contents:**
 ```bash
 cli-anything-exa contents https://exa.ai --content text
-```
-
-**LLM answer with citations:**
-```bash
-cli-anything-exa answer "What makes Exa different from Google?"
 ```
 
 **JSON output (for agents):**

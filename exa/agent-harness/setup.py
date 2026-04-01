@@ -16,7 +16,7 @@ setup(
     version="1.0.0",
     author="cli-anything contributors",
     author_email="",
-    description="CLI harness for Exa — AI-powered web search, similar-page discovery, and LLM-synthesized answers via the Exa API",
+    description="CLI harness for Exa — AI-powered web search and content extraction via the Exa API",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/HKUDS/CLI-Anything",

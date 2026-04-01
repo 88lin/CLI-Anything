@@ -30,7 +30,10 @@ def get_client() -> Exa:
             "EXA_API_KEY environment variable is not set.\n"
             "Get a free key at https://dashboard.exa.ai/api-keys"
         )
-    return Exa(api_key=api_key)
+    return Exa(
+        api_key=api_key,
+        additional_headers={"x-exa-integration": "cli-anything"},
+    )
 
 
 def check_connectivity() -> dict[str, Any]:
@@ -59,10 +62,10 @@ def build_contents_param(
         freshness:    "smart" | "always" | "never"
 
     Returns:
-        A contents dict suitable for passing to exa.search() / exa.find_similar(),
+        A contents dict suitable for passing to exa.search() / exa.get_contents(),
         or None if content_mode is "none".
     """
-    if content_mode == "none":
+    if content_mode == "none":  # noqa: SIM114
         return None
 
     contents: dict[str, Any] = {}
