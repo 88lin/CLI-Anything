@@ -15,19 +15,13 @@ Backend: CloudAnalyzer Python package (direct import, no subprocess)
 """
 
 import json
+import shlex
 from pathlib import Path
 from typing import Optional
 
 import click
 
-from cli_anything.cloudanalyzer.core.project import (
-    create_project,
-    load_project,
-    project_info,
-    save_project,
-    record_operation,
-    add_result,
-)
+from cli_anything.cloudanalyzer.core.project import create_project
 from cli_anything.cloudanalyzer.core.session import Session
 from cli_anything.cloudanalyzer.utils import ca_backend
 from cli_anything.cloudanalyzer.utils.repl_skin import ReplSkin
@@ -107,9 +101,9 @@ def evaluate_run(ctx: click.Context, source: str, reference: str, plot: Optional
         kwargs = {}
         if threshold is not None:
             kwargs["thresholds"] = [threshold]
-        result = ca_backend.evaluate(source, reference, **kwargs)
         if plot:
-            result["plot"] = plot
+            kwargs["plot"] = plot
+        result = ca_backend.evaluate(source, reference, **kwargs)
         _out(ctx, result)
     except Exception as e:
         _error(str(e), ctx.obj.get("json", False))
@@ -416,8 +410,12 @@ def baseline_decision(
     """Decide promote / keep / reject for a baseline."""
     try:
         paths = list(history_paths)
-        if history_dir and not paths:
-            paths = ca_backend.baseline_discover(history_dir)
+        if history_dir:
+            paths.extend(ca_backend.baseline_discover(history_dir))
+        if not paths:
+            _error("Provide --history or --history-dir.", ctx.obj.get("json", False))
+            ctx.exit(1)
+            return
         result = ca_backend.baseline_decision(candidate_json, paths)
         if output_json:
             Path(output_json).parent.mkdir(parents=True, exist_ok=True)
@@ -591,9 +589,10 @@ def inspect_view(ctx: click.Context, path: str) -> None:
 @click.argument("reference", required=False, default=None)
 @click.option("--heatmap", is_flag=True)
 @click.option("--trajectory", default=None)
+@click.option("--trajectory-reference", default=None)
 @click.option("--port", type=int, default=8080)
 @click.pass_context
-def inspect_web(ctx: click.Context, source: str, reference: Optional[str], heatmap: bool, trajectory: Optional[str], port: int) -> None:
+def inspect_web(ctx: click.Context, source: str, reference: Optional[str], heatmap: bool, trajectory: Optional[str], trajectory_reference: Optional[str], port: int) -> None:
     """Interactive browser inspection."""
     try:
         ca_backend.web_serve(
@@ -602,6 +601,7 @@ def inspect_web(ctx: click.Context, source: str, reference: Optional[str], heatm
             port=port,
             heatmap=heatmap,
             trajectory=trajectory,
+            trajectory_reference=trajectory_reference,
         )
     except Exception as e:
         _error(str(e), ctx.obj.get("json", False))
@@ -612,11 +612,19 @@ def inspect_web(ctx: click.Context, source: str, reference: Optional[str], heatm
 @click.argument("source")
 @click.argument("reference", required=False, default=None)
 @click.option("-o", "--output", required=True)
+@click.option("--heatmap", is_flag=True)
+@click.option("--trajectory", default=None)
+@click.option("--trajectory-reference", default=None)
 @click.pass_context
-def inspect_web_export(ctx: click.Context, source: str, reference: Optional[str], output: str) -> None:
+def inspect_web_export(ctx: click.Context, source: str, reference: Optional[str], output: str, heatmap: bool, trajectory: Optional[str], trajectory_reference: Optional[str]) -> None:
     """Export a static HTML inspection bundle."""
     try:
-        result = ca_backend.web_export_bundle(source, reference, output)
+        result = ca_backend.web_export_bundle(
+            source, reference, output,
+            heatmap=heatmap,
+            trajectory=trajectory,
+            trajectory_reference=trajectory_reference,
+        )
         _out(ctx, result)
     except Exception as e:
         _error(str(e), ctx.obj.get("json", False))
@@ -648,8 +656,12 @@ def info_show(ctx: click.Context, path: str) -> None:
 @click.pass_context
 def info_version(ctx: click.Context) -> None:
     """Show CloudAnalyzer version."""
-    ver = ca_backend.get_version()
-    _out(ctx, {"cloudanalyzer_version": ver, "harness_version": VERSION})
+    try:
+        ver = ca_backend.get_version()
+        _out(ctx, {"cloudanalyzer_version": ver, "harness_version": VERSION})
+    except Exception as e:
+        _error(str(e), ctx.obj.get("json", False))
+        ctx.exit(1)
 
 
 # ── session group ─────────────────────────────────────────────────────────────
@@ -730,12 +742,14 @@ def _start_repl(ctx: click.Context) -> None:
             break
 
         try:
-            args = line.split()
+            args = shlex.split(line)
             cli.main(args, standalone_mode=False, obj=ctx.obj)
         except SystemExit:
             pass
+        except ValueError as e:
+            _error(f"Invalid input: {e}", ctx.obj.get("json", False))
         except Exception as e:
-            _error(str(e))
+            _error(str(e), ctx.obj.get("json", False))
 
 
 def main() -> None:

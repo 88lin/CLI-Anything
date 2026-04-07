@@ -99,10 +99,22 @@ def baseline_decision(candidate_path: str, history_paths: list[str]) -> dict:
     """Decide promote / keep / reject for a baseline."""
     _ensure_ca()
     from ca.core import summarize_baseline_evolution
-    candidate = json.loads(Path(candidate_path).read_text(encoding="utf-8"))
-    history = [
-        json.loads(Path(p).read_text(encoding="utf-8")) for p in history_paths
-    ]
+    cp = Path(candidate_path)
+    if not cp.exists():
+        raise FileNotFoundError(f"Candidate file not found: {candidate_path}")
+    try:
+        candidate = json.loads(cp.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in {candidate_path}: {e}") from e
+    history = []
+    for p in history_paths:
+        hp = Path(p)
+        if not hp.exists():
+            raise FileNotFoundError(f"History file not found: {p}")
+        try:
+            history.append(json.loads(hp.read_text(encoding="utf-8")))
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON in {p}: {e}") from e
     return summarize_baseline_evolution(candidate, history)
 
 
