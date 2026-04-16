@@ -119,6 +119,12 @@ This command implements the complete cli-anything methodology to build a product
 /cli-anything https://github.com/blender/blender
 ```
 
+## Auto-Save + --dry-run (Required for Session-Based CLIs)
+
+**Session-based CLIs must auto-save after one-shot mutations.** Without this, one-shot commands silently lose changes because `save_session()` is never called before the process exits. A `--dry-run` flag must also be provided to suppress the save.
+
+See [`guides/auto-save-dry-run.md`](../guides/auto-save-dry-run.md) for the full pattern, code examples, and when it applies.
+
 ## Success Criteria
 
 The command succeeds when:
@@ -132,3 +138,4 @@ The command succeeds when:
 8. SKILL.md is generated with proper YAML frontmatter and command documentation
 9. setup.py is created and local installation works
 10. CLI is available in PATH as `cli-anything-<software>`
+11. **Session-based CLIs implement auto-save + `--dry-run`** (see [guide](../guides/auto-save-dry-run.md))

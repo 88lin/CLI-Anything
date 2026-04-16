@@ -45,6 +45,8 @@ CLI-Anything: Bridging the Gap Between AI Agents and the World's Software</stron
 
 > Thanks to all invaluable efforts from the community! More updates continuously on the way everyday..
 
+- **2026-04-16** 📈 **Unreal Insights CLI** expanded — added background capture session control (`capture start/status/snapshot/stop`), engine-root-matched `UnrealInsights.exe` resolution/build flows, and refreshed docs/tests for the new orchestration workflow.
+
 - **2026-04-15** 🌐 **CLI-Hub** updated to **v0.2.0** — the PyPI package now supports public CLIs from multiple install sources (`pip`, `npm`, `brew`, bundled/system tools), backed by a new `public_registry.json`. The Hub frontend was redesigned with separate **CLI-Anything CLIs** and **Public CLIs** decks, and live end-to-end checks now cover real install, update, and uninstall flows across both pip and npm packages.
 
 - **2026-04-14** 🧭 **Safari CLI** merged (#212) and added to the Hub registry — browser automation via `safari-mcp`. 🎬 **Kdenlive** also received compatibility fixes for Gen 5 project output and invalid project generation.
@@ -968,7 +970,7 @@ Each application received complete, production-ready CLI interfaces — not demo
 <td align="center"><strong>📈 <a href="unrealinsights/agent-harness/">Unreal Insights</a></strong></td>
 <td>Performance Profiling</td>
 <td><code>cli-anything-unrealinsights</code></td>
-<td>Unreal trace capture + engine-matched UnrealInsights export</td>
+<td>Background trace sessions + engine-matched UnrealInsights build + headless export</td>
 <td align="center">✅ 46</td>
 </tr>
 <tr>

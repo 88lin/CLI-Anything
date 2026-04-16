@@ -171,8 +171,10 @@ output_fn = output
 @click.group(invoke_without_command=True)
 @click.option("--json", "use_json", is_flag=True, help="Output in JSON format.")
 @click.option("--project", "-p", type=click.Path(), help="Load project file.")
+@click.option("--dry-run", "dry_run", is_flag=True, default=False,
+              help="Run command without saving changes to disk")
 @click.pass_context
-def cli(ctx: click.Context, use_json: bool, project: Optional[str]) -> None:
+def cli(ctx: click.Context, use_json: bool, project: Optional[str], dry_run: bool) -> None:
     """cli-anything-freecad — CLI harness for FreeCAD 3D CAD modeler."""
     global _json_output
     _json_output = use_json
@@ -184,6 +186,8 @@ def cli(ctx: click.Context, use_json: bool, project: Optional[str]) -> None:
 
         # Auto-save after one-shot commands when --project is used
         def _auto_save():
+            if dry_run:
+                return
             if sess._modified and sess.project_path and not _repl_mode:
                 sess.save_session()
 

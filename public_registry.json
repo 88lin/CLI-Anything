@@ -1,0 +1,243 @@
+{
+  "meta": {
+    "repo": "https://github.com/HKUDS/CLI-Anything",
+    "description": "Public CLI Registry — Third-party and official CLIs managed by CLI-Hub across npm, bundled, brew, and other install methods",
+    "updated": "2026-04-16"
+  },
+  "clis": [
+    {
+      "name": "feishu",
+      "display_name": "Feishu/Lark CLI",
+      "version": "latest",
+      "description": "Official Lark (Feishu) CLI for managing Lark apps, bots, and cloud resources from the terminal",
+      "category": "communication",
+      "requires": "Node.js >= 16",
+      "homepage": "https://github.com/larksuite/cli",
+      "source_url": "https://github.com/larksuite/cli",
+      "package_manager": "npm",
+      "npm_package": "@larksuite/cli",
+      "install_cmd": "npm install -g @larksuite/cli",
+      "npx_cmd": "npx @larksuite/cli",
+      "entry_point": "lark-cli",
+      "contributors": [
+        {
+          "name": "larksuite",
+          "url": "https://github.com/larksuite"
+        }
+      ]
+    },
+    {
+      "name": "minimax-cli",
+      "display_name": "MiniMax CLI",
+      "version": "latest",
+      "description": "MiniMax AI platform CLI for managing tokens, models, and API interactions from the command line",
+      "category": "ai",
+      "requires": "Node.js >= 16, MINIMAX_API_KEY",
+      "homepage": "https://platform.minimax.io",
+      "source_url": null,
+      "package_manager": "npm",
+      "npm_package": "minimax-cli",
+      "install_cmd": "npm install -g minimax-cli",
+      "npx_cmd": "npx minimax-cli",
+      "entry_point": "minimax-cli",
+      "contributors": [
+        {
+          "name": "MiniMax",
+          "url": "https://platform.minimax.io"
+        }
+      ]
+    },
+    {
+      "name": "wecom",
+      "display_name": "WeCom CLI",
+      "version": "latest",
+      "description": "Official WeCom open-platform CLI for contacts, todos, meetings, messages, calendars, docs, and smart sheets",
+      "category": "communication",
+      "requires": "Node.js >= 18, WeCom account (currently limited rollout), optional Bot ID + Secret for bot flows",
+      "homepage": "https://open.work.weixin.qq.com/",
+      "source_url": "https://github.com/WecomTeam/wecom-cli",
+      "package_manager": "npm",
+      "npm_package": "@wecom/cli",
+      "install_cmd": "npm install -g @wecom/cli",
+      "npx_cmd": "npx @wecom/cli",
+      "entry_point": "wecom-cli",
+      "contributors": [
+        {
+          "name": "WecomTeam",
+          "url": "https://github.com/WecomTeam"
+        }
+      ]
+    },
+    {
+      "name": "contentful",
+      "display_name": "Contentful CLI",
+      "version": "latest",
+      "description": "Official Contentful CLI for spaces, migrations, imports, exports, seeding, and environment management",
+      "category": "web",
+      "requires": "Node.js LTS, Contentful account and space access",
+      "homepage": "https://www.contentful.com/",
+      "source_url": "https://github.com/contentful/contentful-cli",
+      "package_manager": "npm",
+      "npm_package": "contentful-cli",
+      "install_cmd": "npm install -g contentful-cli",
+      "npx_cmd": "npx contentful-cli",
+      "entry_point": "contentful",
+      "contributors": [
+        {
+          "name": "Contentful",
+          "url": "https://github.com/contentful"
+        }
+      ]
+    },
+    {
+      "name": "sanity",
+      "display_name": "Sanity CLI",
+      "version": "latest",
+      "description": "Official Sanity CLI for studios, datasets, schemas, imports, exports, and structured content workflows",
+      "category": "web",
+      "requires": "Node.js and npm, Sanity account/project access",
+      "homepage": "https://www.sanity.io/",
+      "source_url": "https://github.com/sanity-io/sanity",
+      "package_manager": "npm",
+      "npm_package": "sanity",
+      "install_cmd": "npm install -g sanity",
+      "npx_cmd": "npx sanity@latest",
+      "entry_point": "sanity",
+      "contributors": [
+        {
+          "name": "Sanity",
+          "url": "https://github.com/sanity-io"
+        }
+      ]
+    },
+    {
+      "name": "shopify",
+      "display_name": "Shopify CLI",
+      "version": "latest",
+      "description": "Official Shopify CLI for apps, themes, functions, extensions, and Hydrogen storefront workflows",
+      "category": "web",
+      "requires": "Node.js and npm, Shopify Partner/store access",
+      "homepage": "https://shopify.dev/docs/api/shopify-cli",
+      "source_url": "https://github.com/Shopify/cli",
+      "package_manager": "npm",
+      "npm_package": "@shopify/cli",
+      "install_cmd": "npm install -g @shopify/cli",
+      "npx_cmd": "npx @shopify/cli@latest",
+      "entry_point": "shopify",
+      "contributors": [
+        {
+          "name": "Shopify",
+          "url": "https://github.com/Shopify"
+        }
+      ]
+    },
+    {
+      "name": "sentry",
+      "display_name": "Sentry CLI",
+      "version": "latest",
+      "description": "Official Sentry CLI for releases, sourcemaps, debug files, monitors, and org/project automation",
+      "category": "devops",
+      "requires": "Sentry account plus auth token/org/project access for most operations",
+      "homepage": "https://docs.sentry.io/cli/",
+      "source_url": "https://github.com/getsentry/sentry-cli",
+      "package_manager": "npm",
+      "npm_package": "@sentry/cli",
+      "install_cmd": "npm install -g @sentry/cli",
+      "npx_cmd": "npx @sentry/cli",
+      "entry_point": "sentry-cli",
+      "contributors": [
+        {
+          "name": "Sentry",
+          "url": "https://github.com/getsentry"
+        }
+      ]
+    },
+    {
+      "name": "1password-cli",
+      "display_name": "1Password CLI",
+      "version": "latest",
+      "description": "Official 1Password CLI for vault access, secrets retrieval, item automation, and desktop-app-backed authentication",
+      "category": "devops",
+      "requires": "1Password account; desktop app integration recommended for biometric/system-auth sign-in",
+      "homepage": "https://developer.1password.com/docs/cli/get-started/",
+      "source_url": null,
+      "package_manager": "brew",
+      "install_strategy": "command",
+      "install_cmd": "brew install --cask 1password-cli",
+      "uninstall_cmd": "brew uninstall --cask 1password-cli",
+      "update_cmd": "brew upgrade --cask 1password-cli",
+      "entry_point": "op",
+      "contributors": [
+        {
+          "name": "1Password",
+          "url": "https://1password.com"
+        }
+      ]
+    },
+    {
+      "name": "generate-veo-video",
+      "display_name": "Generate Veo Video",
+      "version": "0.2.5",
+      "description": "CLI for generating videos with Google Veo 3.1 via Vertex AI/Gemini — text-to-video, image-to-video, reference images, frame morphing, and video extension",
+      "category": "ai",
+      "requires": "Python >= 3.10, uv, GOOGLE_CLOUD_PROJECT env var (GEMINI_API_KEY optional)",
+      "homepage": "https://github.com/charles-forsyth/generate-veo-video",
+      "source_url": "https://github.com/charles-forsyth/generate-veo-video",
+      "package_manager": "uv",
+      "install_cmd": "uv tool install git+https://github.com/charles-forsyth/generate-veo-video.git",
+      "uninstall_cmd": "uv tool uninstall generate-veo-video",
+      "update_cmd": "uv tool upgrade generate-veo-video",
+      "entry_point": "generate-veo",
+      "contributors": [
+        {
+          "name": "charles-forsyth",
+          "url": "https://github.com/charles-forsyth"
+        }
+      ]
+    },
+    {
+      "name": "jimeng",
+      "display_name": "Jimeng / Dreamina CLI",
+      "version": "latest",
+      "description": "Official ByteDance AI image and video generation CLI — text-to-image, text-to-video, image-to-video, digital human, and intelligent canvas; domestic brand is Jimeng (即梦), international brand is Dreamina",
+      "category": "ai",
+      "requires": "Jimeng / Dreamina account and API key",
+      "homepage": "https://jimeng.jianying.com/",
+      "docs_url": "https://bytedance.larkoffice.com/wiki/FVTwwm0bGiishxkKOoScdHR2nsg",
+      "source_url": null,
+      "package_manager": "script",
+      "install_strategy": "command",
+      "install_cmd": "curl -s https://jimeng.jianying.com/cli | bash",
+      "entry_point": "dreamina",
+      "contributors": [
+        {
+          "name": "ByteDance",
+          "url": "https://www.bytedance.com"
+        }
+      ]
+    },
+    {
+      "name": "obsidian-cli",
+      "display_name": "Obsidian CLI",
+      "version": "bundled",
+      "description": "Official Obsidian command line interface for vault automation, developer tools, screenshots, search, history, and plugin workflows",
+      "category": "knowledge",
+      "requires": "Obsidian 1.12.7+ installer, Obsidian desktop app running, and Command line interface enabled in Settings → General",
+      "homepage": "https://obsidian.md/help/cli",
+      "source_url": null,
+      "package_manager": "bundled",
+      "install_strategy": "bundled",
+      "install_notes": "Bundled within the Obsidian 1.12+ installer. Enable Command line interface in Obsidian settings and follow the registration prompt so `obsidian` is added to PATH.",
+      "uninstall_notes": "Disable Command line interface from Obsidian settings or remove/update the Obsidian installer to stop using the bundled CLI.",
+      "update_notes": "Update the Obsidian installer to a newer 1.12+ release to update the bundled CLI.",
+      "entry_point": "obsidian",
+      "detect_cmd": "obsidian",
+      "contributors": [
+        {
+          "name": "Obsidian",
+          "url": "https://obsidian.md"
+        }
+      ]
+    }
+  ]
+}
