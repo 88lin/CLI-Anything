@@ -962,7 +962,7 @@ Each application received complete, production-ready CLI interfaces — not demo
 <td>GPU Debugging & Profiling</td>
 <td><code>cli-anything-nsight-graphics</code></td>
 <td>Official ngfx / ngfx-capture orchestration + GPU Trace summary</td>
-<td align="center">✅ 32</td>
+<td align="center">✅ 33</td>
 </tr>
 <tr>
 <td align="center"><strong>🅲🅲 CloudCompare</strong></td>
@@ -986,12 +986,19 @@ Each application received complete, production-ready CLI interfaces — not demo
 <td align="center">✅ 14</td>
 </tr>
 <tr>
+<td align="center"><strong>🗺️ <a href="QGIS/agent-harness/">QGIS</a></strong></td>
+<td>Geospatial Analysis &amp; Mapping</td>
+<td><code>cli-anything-qgis</code></td>
+<td>PyQGIS + qgis_process</td>
+<td align="center">✅ 22</td>
+</tr>
+<tr>
 <td align="center" colspan="4"><strong>Total</strong></td>
-<td align="center"><strong>✅ 2,162</strong></td>
+<td align="center"><strong>✅ 2,185</strong></td>
 </tr>
 </table>
 
-> **100% pass rate** across all 2,162 tests — 1,582 unit tests + 561 end-to-end tests + 19 Node.js tests.
+> **100% pass rate** across all 2,185 tests — 1,596 unit tests + 570 end-to-end tests + 19 Node.js tests.
 
 ---
 
@@ -1029,11 +1036,11 @@ ollama         98 passed  ✅   (87 unit + 11 e2e)
 sketch         19 passed  ✅   (19 jest, Node.js)
 renderdoc      59 passed  ✅   (45 unit + 14 e2e)
 cloudcompare   88 passed  ✅   (49 unit + 39 e2e)
-nsight-graphics 32 passed ✅   (31 unit + 1 e2e)
+nsight-graphics 33 passed ✅   (32 unit + 1 e2e, 3 hardware-gated e2e skipped)
 openscreen    101 passed  ✅   (78 unit + 23 e2e)
 cloudanalyzer  14 passed  ✅   (7 unit + 7 e2e)
 ──────────────────────────────────────────────────────────────────────────────
-TOTAL        2,162 passed  ✅   100% pass rate
+TOTAL        2,185 passed  ✅   100% pass rate
 ```
 
 ---
@@ -1112,7 +1119,7 @@ cli-anything/
 ├── ☁️ cloudcompare/agent-harness/       # CloudCompare CLI (88 tests)
 ├── 🔍 exa/agent-harness/               # Exa CLI (40 tests)
 └── ⛅ cloudanalyzer/agent-harness/      # CloudAnalyzer CLI (14 tests)
-├── 🟩 nsight-graphics/agent-harness/    # Nsight Graphics CLI (32 tests)
+├── 🟩 nsight-graphics/agent-harness/    # Nsight Graphics CLI (33 tests)
 ```
 
 Each `agent-harness/` contains an installable Python package under `cli_anything.<software>/` with Click CLI, core modules, utils (including `repl_skin.py` and backend wrapper), and comprehensive tests.

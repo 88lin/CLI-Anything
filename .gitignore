@@ -92,6 +92,7 @@
 !/renderdoc/
 !/cloudcompare/
 !/openscreen/
+!/QGIS/
 !/n8n/
 !/obsidian/
 !/nsight-graphics/
@@ -165,6 +166,8 @@
 /cloudcompare/.*
 /openscreen/*
 /openscreen/.*
+/QGIS/*
+/QGIS/.*
 /cloudanalyzer/*
 /cloudanalyzer/.*
 /wiremock/*
@@ -220,6 +223,7 @@
 !/wiremock/
 !/wiremock/agent-harness/
 !/exa/agent-harness/
+!/QGIS/agent-harness/
 !/n8n/agent-harness/
 !/obsidian/agent-harness/
 !/safari/

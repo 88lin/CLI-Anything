@@ -76,16 +76,18 @@ def extract_system_package(content: str) -> Optional[str]:
     patterns = [
         r"`apt install ([\w\-]+)`",
         r"`brew install ([\w\-]+)`",
-        r"apt-get install ([\w\-]+)",
+        r"`apt-get install ([\w\-]+)`",
     ]
 
     for pattern in patterns:
         match = re.search(pattern, content)
         if match:
             package = match.group(1)
-            if "apt" in pattern:
+            if "apt-get" in pattern:
+                return f"apt-get install {package}"
+            elif "apt" in pattern:
                 return f"apt install {package}"
-            if "brew" in pattern:
+            elif "brew" in pattern:
                 return f"brew install {package}"
     return None
 

@@ -504,6 +504,20 @@
       ]
     },
     {
+      "name": "qgis",
+      "display_name": "QGIS",
+      "version": "1.0.0",
+      "description": "Geospatial project authoring, layout export, and processing via PyQGIS and qgis_process",
+      "requires": "QGIS with qgis_process on PATH, PyQGIS importable",
+      "homepage": "https://qgis.org",
+      "install_cmd": "pip install git+https://github.com/HKUDS/CLI-Anything.git#subdirectory=QGIS/agent-harness",
+      "entry_point": "cli-anything-qgis",
+      "skill_md": "QGIS/agent-harness/cli_anything/qgis/skills/SKILL.md",
+      "category": "scientific",
+      "contributor": "scially",
+      "contributor_url": "https://github.com/scially"
+    },
+    {
       "name": "chromadb",
       "display_name": "ChromaDB",
       "version": "1.0.0",
@@ -662,12 +676,17 @@
       "description": "Windows-first Nsight Graphics CLI for Graphics/Frame capture, GPU Trace, Generate C++ Capture, and one-step GPU Trace summary",
       "requires": "NVIDIA Nsight Graphics installation with ngfx.exe or newer split capture/replay tools",
       "homepage": "https://developer.nvidia.com/nsight-graphics",
+      "source_url": null,
       "install_cmd": "pip install git+https://github.com/HKUDS/CLI-Anything.git#subdirectory=nsight-graphics/agent-harness",
       "entry_point": "cli-anything-nsight-graphics",
       "skill_md": "nsight-graphics/agent-harness/cli_anything/nsight_graphics/skills/SKILL.md",
       "category": "graphics",
-      "contributor": "AiMiDi",
-      "contributor_url": "https://github.com/AiMiDi"
+      "contributors": [
+        {
+          "name": "AiMiDi",
+          "url": "https://github.com/AiMiDi"
+        }
+      ]
     },
     {
       "name": "videocaptioner",

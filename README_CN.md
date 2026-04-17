@@ -592,7 +592,7 @@ CLI-Anything 适用于任何有代码库的软件 —— 不限领域，不限�
 <td>GPU 调试与性能分析</td>
 <td><code>cli-anything-nsight-graphics</code></td>
 <td>官方 ngfx / ngfx-capture 编排 + GPU Trace 摘要</td>
-<td align="center">✅ 32</td>
+<td align="center">✅ 33</td>
 </tr>
 <tr>
 <td align="center" colspan="4"><strong>合计</strong></td>
@@ -630,7 +630,7 @@ zoom           22 passed  ✅   (22 unit + 0 e2e)
 drawio        138 passed  ✅   (116 unit + 22 e2e)
 anygen         50 passed  ✅   (40 unit + 10 e2e)
 sketch         19 passed  ✅   (19 jest, Node.js)
-nsight-graphics 32 passed ✅   (31 unit + 1 e2e)
+nsight-graphics 33 passed ✅   (32 unit + 1 e2e, 3 hardware-gated e2e skipped)
 ──────────────────────────────────────────────────────────────────────────────
 TOTAL        1,660 passed  ✅   100% pass rate
 ```
@@ -700,7 +700,7 @@ cli-anything/
 ├── 📐 drawio/agent-harness/             # Draw.io CLI（138 项测试）
 ├── ✨ anygen/agent-harness/             # AnyGen CLI（50 项测试）
 ├── 🎨 sketch/agent-harness/             # Sketch CLI（19 项测试，Node.js）
-└── 🟩 nsight-graphics/agent-harness/    # Nsight Graphics CLI（32 项测试）
+└── 🟩 nsight-graphics/agent-harness/    # Nsight Graphics CLI（33 项测试）
 ```
 
 每个 `agent-harness/` 包含一个可安装的 Python 包，位于 `cli_anything.<软件名>/` 下，包含 Click CLI、核心模块、工具类（含 `repl_skin.py` 和后端适配器）以及完整的测试。
