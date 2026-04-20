@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-setup.py for cli-anything-openclaw
+setup.py for cli-anything-macrocli
 
 Install with: pip install -e .
 """
 
 from setuptools import setup, find_namespace_packages
 
-with open("cli_anything/openclaw/README.md", "r", encoding="utf-8") as fh:
+with open("cli_anything/macrocli/README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="cli-anything-openclaw",
+    name="cli-anything-macrocli",
     version="1.0.0",
     author="cli-anything contributors",
     author_email="",
     description=(
-        "OpenClaw Macro System — A layered CLI that converts GUI workflows into "
+        "MacroCLI — A layered CLI that converts GUI workflows into "
         "parameterized, agent-callable macros. Requires: PyYAML, click, prompt-toolkit."
     ),
     long_description=long_description,
@@ -65,11 +65,11 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "cli-anything-openclaw=cli_anything.openclaw.openclaw_cli:cli",
+            "cli-anything-macrocli=cli_anything.macrocli.macrocli_cli:cli",
         ],
     },
     package_data={
-        "cli_anything.openclaw": ["skills/*.md", "macro_definitions/*.yaml", "macro_definitions/examples/*.yaml"],
+        "cli_anything.macrocli": ["skills/*.md", "macro_definitions/*.yaml", "macro_definitions/examples/*.yaml"],
     },
     include_package_data=True,
     zip_safe=False,

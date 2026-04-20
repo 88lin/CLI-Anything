@@ -37,8 +37,8 @@ import os
 import time
 from pathlib import Path
 
-from cli_anything.openclaw.backends.base import Backend, BackendContext, StepResult
-from cli_anything.openclaw.core.macro_model import MacroStep, substitute
+from cli_anything.macrocli.backends.base import Backend, BackendContext, StepResult
+from cli_anything.macrocli.core.macro_model import MacroStep, substitute
 
 
 class FileTransformBackend(Backend):

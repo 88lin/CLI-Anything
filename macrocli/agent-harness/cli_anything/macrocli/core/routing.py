@@ -15,14 +15,14 @@ the priority list.
 
 from __future__ import annotations
 
-from cli_anything.openclaw.backends.base import Backend, BackendContext, StepResult
-from cli_anything.openclaw.backends.native_api import NativeAPIBackend
-from cli_anything.openclaw.backends.file_transform import FileTransformBackend
-from cli_anything.openclaw.backends.semantic_ui import SemanticUIBackend
-from cli_anything.openclaw.backends.gui_macro import GUIMacroBackend
-from cli_anything.openclaw.backends.visual_anchor import VisualAnchorBackend
-from cli_anything.openclaw.backends.recovery import RecoveryBackend
-from cli_anything.openclaw.core.macro_model import MacroStep
+from cli_anything.macrocli.backends.base import Backend, BackendContext, StepResult
+from cli_anything.macrocli.backends.native_api import NativeAPIBackend
+from cli_anything.macrocli.backends.file_transform import FileTransformBackend
+from cli_anything.macrocli.backends.semantic_ui import SemanticUIBackend
+from cli_anything.macrocli.backends.gui_macro import GUIMacroBackend
+from cli_anything.macrocli.backends.visual_anchor import VisualAnchorBackend
+from cli_anything.macrocli.backends.recovery import RecoveryBackend
+from cli_anything.macrocli.core.macro_model import MacroStep
 
 
 _BACKEND_PRIORITY: dict[str, int] = {

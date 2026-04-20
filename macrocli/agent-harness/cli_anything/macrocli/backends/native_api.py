@@ -24,8 +24,8 @@ import subprocess
 import time
 from typing import Any
 
-from cli_anything.openclaw.backends.base import Backend, BackendContext, StepResult
-from cli_anything.openclaw.core.macro_model import MacroStep, substitute
+from cli_anything.macrocli.backends.base import Backend, BackendContext, StepResult
+from cli_anything.macrocli.core.macro_model import MacroStep, substitute
 
 
 class NativeAPIBackend(Backend):

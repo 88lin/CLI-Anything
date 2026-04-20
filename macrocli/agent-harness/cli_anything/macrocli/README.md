@@ -1,6 +1,6 @@
-# OpenClaw Macro System
+# MacroCLI
 
-**OpenClaw Macro System** is a layered CLI that converts GUI workflows into
+**MacroCLI** is a layered CLI that converts GUI workflows into
 parameterized, agent-callable macros. Agents call `macro run <name>` through
 a stable CLI; the system routes execution to the right backend (native plugin,
 file transform, semantic UI, or compiled GUI replay) — invisible to the agent.
@@ -17,36 +17,36 @@ pip install -e .
 
 ```bash
 # List available macros
-cli-anything-openclaw macro list --json
+cli-anything-macrocli macro list --json
 
 # Inspect a macro
-cli-anything-openclaw macro info export_file --json
+cli-anything-macrocli macro info export_file --json
 
 # Execute a macro
-cli-anything-openclaw macro run transform_json \
+cli-anything-macrocli macro run transform_json \
     --param file=/tmp/config.json \
     --param key=theme --param value=dark --json
 
 # Dry run
-cli-anything-openclaw --dry-run macro run export_file \
+cli-anything-macrocli --dry-run macro run export_file \
     --param output=/tmp/out.txt --json
 
 # Interactive REPL
-cli-anything-openclaw
+cli-anything-macrocli
 ```
 
 ## Run Tests
 
 ```bash
-cd openclaw-skill/agent-harness
+cd macrocli/agent-harness
 pip install -e ".[dev]"
-python -m pytest cli_anything/openclaw/tests/ -v -s
+python -m pytest cli_anything/macrocli/tests/ -v -s
 ```
 
 ## Architecture
 
 ```
-cli-anything-openclaw (CLI)
+cli-anything-macrocli (CLI)
   └─▶ macro run <name> --param key=value
          │
     MacroRuntime
@@ -68,8 +68,8 @@ cli-anything-openclaw (CLI)
 
 ## Adding a Macro
 
-1. Create `cli_anything/openclaw/macro_definitions/my_macro.yaml`
+1. Create `cli_anything/macrocli/macro_definitions/my_macro.yaml`
 2. Add it to `macro_definitions/manifest.yaml`
-3. Verify: `cli-anything-openclaw macro validate my_macro --json`
+3. Verify: `cli-anything-macrocli macro validate my_macro --json`
 
 See `skills/SKILL.md` (installed with the package) for full macro YAML schema.

@@ -1,4 +1,4 @@
-"""End-to-end integration tests for the OpenClaw Macro System.
+"""End-to-end integration tests for the MacroCLI.
 
 Tests the full lifecycle: macro discovery → runtime execution → CLI subprocess.
 Uses real file I/O and subprocess calls (echo, cat, etc.) as the "target apps".
@@ -27,9 +27,9 @@ def _resolve_cli(name: str) -> list[str]:
         return [path]
     if force:
         raise RuntimeError(f"{name} not found in PATH. Install with: pip install -e .")
-    module = "cli_anything.openclaw.openclaw_cli"
+    module = "cli_anything.macrocli.macrocli_cli"
     print(f"[_resolve_cli] Falling back to: {sys.executable} -m {module}")
-    return [sys.executable, "-m", "cli_anything.openclaw"]
+    return [sys.executable, "-m", "cli_anything.macrocli"]
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -45,9 +45,9 @@ def write_macro(tmp_path: Path, name: str, content: str) -> Path:
 class TestFileTransformE2E:
     def test_json_set_and_verify(self, tmp_path):
         """Write a JSON file, transform it, verify the result."""
-        from cli_anything.openclaw.core.macro_model import MacroDefinition, MacroStep, MacroCondition, MacroOutput
-        from cli_anything.openclaw.core.registry import MacroRegistry
-        from cli_anything.openclaw.core.runtime import MacroRuntime
+        from cli_anything.macrocli.core.macro_model import MacroDefinition, MacroStep, MacroCondition, MacroOutput
+        from cli_anything.macrocli.core.registry import MacroRegistry
+        from cli_anything.macrocli.core.runtime import MacroRuntime
 
         json_file = tmp_path / "settings.json"
         json_file.write_text('{"version": 1}', encoding="utf-8")
@@ -100,9 +100,9 @@ class TestFileTransformE2E:
 class TestNativeAPIE2E:
     def test_run_real_command_and_capture(self, tmp_path):
         """Run a real shell command and capture its stdout."""
-        from cli_anything.openclaw.core.macro_model import MacroDefinition
-        from cli_anything.openclaw.core.registry import MacroRegistry
-        from cli_anything.openclaw.core.runtime import MacroRuntime
+        from cli_anything.macrocli.core.macro_model import MacroDefinition
+        from cli_anything.macrocli.core.registry import MacroRegistry
+        from cli_anything.macrocli.core.runtime import MacroRuntime
 
         output_file = tmp_path / "result.txt"
         yaml_content = textwrap.dedent(f"""\
@@ -141,8 +141,8 @@ class TestNativeAPIE2E:
 
     def test_step_failure_aborts_macro(self, tmp_path):
         """A failing step with on_failure=fail should abort the macro."""
-        from cli_anything.openclaw.core.registry import MacroRegistry
-        from cli_anything.openclaw.core.runtime import MacroRuntime
+        from cli_anything.macrocli.core.registry import MacroRegistry
+        from cli_anything.macrocli.core.runtime import MacroRuntime
 
         yaml_content = textwrap.dedent("""\
             name: fail_abort
@@ -171,8 +171,8 @@ class TestNativeAPIE2E:
 
     def test_step_failure_skip_continues(self, tmp_path):
         """A failing step with on_failure=skip should allow the macro to continue."""
-        from cli_anything.openclaw.core.registry import MacroRegistry
-        from cli_anything.openclaw.core.runtime import MacroRuntime
+        from cli_anything.macrocli.core.registry import MacroRegistry
+        from cli_anything.macrocli.core.runtime import MacroRuntime
 
         yaml_content = textwrap.dedent("""\
             name: fail_skip
@@ -201,8 +201,8 @@ class TestNativeAPIE2E:
 
 class TestPostconditionE2E:
     def test_postcondition_file_exists_passes(self, tmp_path):
-        from cli_anything.openclaw.core.registry import MacroRegistry
-        from cli_anything.openclaw.core.runtime import MacroRuntime
+        from cli_anything.macrocli.core.registry import MacroRegistry
+        from cli_anything.macrocli.core.runtime import MacroRuntime
 
         output_file = tmp_path / "output.txt"
         yaml_content = textwrap.dedent(f"""\
@@ -231,8 +231,8 @@ class TestPostconditionE2E:
         print(f"\n  Output file: {output_file} ({output_file.stat().st_size} bytes)")
 
     def test_postcondition_file_size_gt(self, tmp_path):
-        from cli_anything.openclaw.core.registry import MacroRegistry
-        from cli_anything.openclaw.core.runtime import MacroRuntime
+        from cli_anything.macrocli.core.registry import MacroRegistry
+        from cli_anything.macrocli.core.runtime import MacroRuntime
 
         output_file = tmp_path / "output.txt"
         output_file.write_text("x" * 200, encoding="utf-8")
@@ -265,7 +265,7 @@ class TestPostconditionE2E:
 # ── CLI subprocess tests ──────────────────────────────────────────────────────
 
 class TestCLISubprocess:
-    CLI_BASE = _resolve_cli("cli-anything-openclaw")
+    CLI_BASE = _resolve_cli("cli-anything-macrocli")
 
     def _run(self, args: list[str], check: bool = True) -> subprocess.CompletedProcess:
         return subprocess.run(
@@ -309,7 +309,7 @@ class TestCLISubprocess:
         result = self._run([
             "--json", "--dry-run",
             "macro", "run", "export_file",
-            "--param", "output=/tmp/test_openclaw_e2e.txt",
+            "--param", "output=/tmp/test_macrocli_e2e.txt",
         ])
         assert result.returncode == 0, f"stderr: {result.stderr}"
         data = json.loads(result.stdout)

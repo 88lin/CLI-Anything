@@ -1,6 +1,6 @@
 """ExecutionSession — tracks macro run history and telemetry.
 
-Persists run records to ~/.openclaw-macro/sessions/ so agents can inspect
+Persists run records to ~/.macrocli/sessions/ so agents can inspect
 what was run, what succeeded, and what the outputs were.
 """
 
@@ -12,7 +12,7 @@ import time
 from pathlib import Path
 from typing import Optional
 
-SESSION_DIR = Path.home() / ".openclaw-macro" / "sessions"
+SESSION_DIR = Path.home() / ".macrocli" / "sessions"
 MAX_HISTORY = 200
 
 

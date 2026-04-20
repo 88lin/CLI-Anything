@@ -59,8 +59,8 @@ import subprocess
 import time
 from typing import Optional
 
-from cli_anything.openclaw.backends.base import Backend, BackendContext, StepResult
-from cli_anything.openclaw.core.macro_model import MacroStep, substitute
+from cli_anything.macrocli.backends.base import Backend, BackendContext, StepResult
+from cli_anything.macrocli.core.macro_model import MacroStep, substitute
 
 _SYSTEM = platform.system()
 
@@ -306,8 +306,8 @@ class SemanticUIBackend(Backend):
 
         elif _SYSTEM == "Darwin":
             # Use pynput (cross-platform) or AppleScript key code
-            from cli_anything.openclaw.backends.visual_anchor import VisualAnchorBackend
-            from cli_anything.openclaw.core.macro_model import MacroStep as MS
+            from cli_anything.macrocli.backends.visual_anchor import VisualAnchorBackend
+            from cli_anything.macrocli.core.macro_model import MacroStep as MS
             va = VisualAnchorBackend()
             step = MS(id="x", backend="visual_anchor", action="hotkey", params={"keys": keys})
             result = va._hotkey({"keys": keys}, context)
@@ -333,7 +333,7 @@ class SemanticUIBackend(Backend):
             return {"typed": len(text), "method": "xdotool"}
 
         # macOS / Windows: fall through to visual_anchor type_text
-        from cli_anything.openclaw.backends.visual_anchor import VisualAnchorBackend
+        from cli_anything.macrocli.backends.visual_anchor import VisualAnchorBackend
         va = VisualAnchorBackend()
         return va._type_text(p, context)
 

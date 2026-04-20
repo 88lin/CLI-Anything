@@ -1,12 +1,12 @@
-# OpenClaw Macro System — Agent Harness SOP
+# MacroCLI — Agent Harness SOP
 
 ## What Is This?
 
-**OpenClaw Macro System** is a layered CLI that turns valuable GUI workflows into
+**MacroCLI** is a layered CLI that turns valuable GUI workflows into
 parameterized, agent-callable macros. The agent sends one command:
 
 ```bash
-cli-anything-openclaw macro run export_png --param output=/tmp/out.png --json
+cli-anything-macrocli macro run export_png --param output=/tmp/out.png --json
 ```
 
 The system handles everything else: parameter validation, precondition checks,
@@ -17,7 +17,7 @@ result output. The agent never touches the GUI directly.
 
 ```
 Agent
-  └─▶  cli-anything-openclaw macro run <name> --param k=v --json   (L6: CLI)
+  └─▶  cli-anything-macrocli macro run <name> --param k=v --json   (L6: CLI)
              │
         MacroRuntime                                                  (L5)
              │  1. Validate params against MacroDefinition schema
@@ -35,8 +35,8 @@ Agent
 
 | Layer | Name | Implementation |
 |-------|------|---------------|
-| L7 | Agent Task Interface | Caller (OpenClaw or any agent) |
-| L6 | Unified CLI Entry | `openclaw_cli.py` — Click CLI |
+| L7 | Agent Task Interface | Caller (any AI agent) |
+| L6 | Unified CLI Entry | `macrocli_cli.py` — Click CLI |
 | L5 | Macro Execution Runtime | `core/runtime.py` |
 | L4 | Parameterized Macro Model | `core/macro_model.py` + `macro_definitions/*.yaml` |
 | L3 | Backend Routing Engine | `core/routing.py` |
@@ -58,7 +58,7 @@ is unavailable it walks down the priority list.
 
 ## Macro Definition Format
 
-Macros live in `cli_anything/openclaw/macro_definitions/` as YAML files:
+Macros live in `cli_anything/macrocli/macro_definitions/` as YAML files:
 
 ```yaml
 name: export_png
@@ -113,11 +113,11 @@ agent_hints:
 ## Package Layout
 
 ```
-openclaw-skill/
+macrocli/
 └── agent-harness/
-    ├── setup.py                           entry_point: cli-anything-openclaw
-    └── cli_anything/openclaw/
-        ├── openclaw_cli.py                Main Click CLI
+    ├── setup.py                           entry_point: cli-anything-macrocli
+    └── cli_anything/macrocli/
+        ├── macrocli_cli.py                Main Click CLI
         ├── macro_definitions/             YAML macro registry
         │   ├── manifest.yaml
         │   └── examples/
@@ -147,7 +147,7 @@ openclaw-skill/
 ## Installation
 
 ```bash
-cd openclaw-skill/agent-harness
+cd macrocli/agent-harness
 pip install -e .
 ```
 
@@ -161,8 +161,8 @@ pip install -e .
 ## Running Tests
 
 ```bash
-cd openclaw-skill/agent-harness
-python3 -m pytest cli_anything/openclaw/tests/ -v -s
+cd macrocli/agent-harness
+python3 -m pytest cli_anything/macrocli/tests/ -v -s
 # 64 passed
 ```
 

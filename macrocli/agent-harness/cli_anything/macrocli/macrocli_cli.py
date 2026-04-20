@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""OpenClaw CLI — agent-callable interface for the Macro System.
+"""MacroCLI — agent-callable interface for the Macro System.
 
-This CLI is the L6 "Unified CLI Entry" in the OpenClaw Macro System.
+This CLI is the L6 "Unified CLI Entry" in the MacroCLI.
 It provides a stable, machine-readable interface for AI agents and
 power users to invoke macros without touching the GUI.
 
 Usage (one-shot):
-    cli-anything-openclaw macro run export_file --param output=/tmp/out.png --json
-    cli-anything-openclaw macro list --json
-    cli-anything-openclaw macro info export_file --json
+    cli-anything-macrocli macro run export_file --param output=/tmp/out.png --json
+    cli-anything-macrocli macro list --json
+    cli-anything-macrocli macro info export_file --json
 
 Usage (REPL):
-    cli-anything-openclaw          # enters interactive REPL
-    cli-anything-openclaw repl
+    cli-anything-macrocli          # enters interactive REPL
+    cli-anything-macrocli repl
 """
 
 import sys
@@ -21,9 +21,9 @@ import json
 import click
 from typing import Optional
 
-from cli_anything.openclaw.core.registry import MacroRegistry
-from cli_anything.openclaw.core.runtime import MacroRuntime
-from cli_anything.openclaw.core.session import ExecutionSession
+from cli_anything.macrocli.core.registry import MacroRegistry
+from cli_anything.macrocli.core.runtime import MacroRuntime
+from cli_anything.macrocli.core.session import ExecutionSession
 
 # ── Global state ─────────────────────────────────────────────────────────────
 
@@ -139,13 +139,13 @@ def _parse_params(param_tuples: tuple) -> dict:
 @click.option("--session-id", default=None, help="Resume or create a named session.")
 @click.pass_context
 def cli(ctx, json_flag, dry_run_flag, session_id):
-    """OpenClaw Macro System — run GUI workflows as CLI commands.
+    """MacroCLI — run GUI workflows as CLI commands.
 
     \b
     Quick start:
-      cli-anything-openclaw macro list
-      cli-anything-openclaw macro info <name>
-      cli-anything-openclaw macro run <name> --param key=value
+      cli-anything-macrocli macro list
+      cli-anything-macrocli macro info <name>
+      cli-anything-macrocli macro run <name> --param key=value
 
     Enter interactive REPL by running without arguments.
     """
@@ -418,7 +418,7 @@ def macro_record(name, output_dir, timeout):
     Requires: pip install mss Pillow pynput
     """
     try:
-        from cli_anything.openclaw.core.recorder import MacroRecorder
+        from cli_anything.macrocli.core.recorder import MacroRecorder
     except ImportError as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
@@ -486,7 +486,7 @@ def macro_assist(name, goal, screenshot, output, api_key, model):
           --api-key $GEMINI_API_KEY
     """
     try:
-        from cli_anything.openclaw.core.gemini_assist import generate_macro
+        from cli_anything.macrocli.core.gemini_assist import generate_macro
     except ImportError as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
@@ -537,9 +537,9 @@ def macro_capture_template(output_path, x, y, width, height):
     Requires: pip install mss Pillow
     """
     try:
-        from cli_anything.openclaw.backends.visual_anchor import VisualAnchorBackend
-        from cli_anything.openclaw.backends.base import BackendContext
-        from cli_anything.openclaw.core.macro_model import MacroStep
+        from cli_anything.macrocli.backends.visual_anchor import VisualAnchorBackend
+        from cli_anything.macrocli.backends.base import BackendContext
+        from cli_anything.macrocli.core.macro_model import MacroStep
     except ImportError as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
@@ -660,8 +660,8 @@ def repl(ctx):
     global _repl_mode
     _repl_mode = True
 
-    from cli_anything.openclaw.utils.repl_skin import ReplSkin
-    skin = ReplSkin("openclaw", version="1.0.0")
+    from cli_anything.macrocli.utils.repl_skin import ReplSkin
+    skin = ReplSkin("macrocli", version="1.0.0")
     skin.print_banner()
 
     runtime = get_runtime()
@@ -714,7 +714,7 @@ def repl(ctx):
 
         try:
             ctx_obj = cli.make_context(
-                "cli-anything-openclaw",
+                "cli-anything-macrocli",
                 args,
                 standalone_mode=False,
                 parent=ctx,

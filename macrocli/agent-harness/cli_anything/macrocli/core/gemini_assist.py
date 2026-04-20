@@ -29,7 +29,7 @@ The "description" field in click_image / wait_image / scroll tells the user
 what template image to capture with 'macro record' or 'capture_region'.
 
 Usage:
-    cli-anything-openclaw macro define my_export --assist \
+    cli-anything-macrocli macro define my_export --assist \
         --goal "Export the current diagram as PNG to /tmp/out.png" \
         --screenshot current         # takes a fresh screenshot
         --screenshot /path/to/img.png   # use existing image

@@ -4,7 +4,7 @@ The registry scans a macros/ directory (and subdirectories) for *.yaml files,
 optionally guided by a manifest.yaml index.
 
 Usage:
-    from cli_anything.openclaw.core.registry import MacroRegistry
+    from cli_anything.macrocli.core.registry import MacroRegistry
     registry = MacroRegistry("/path/to/macros")
     macro = registry.load("export_file")
     all_macros = registry.list_all()
@@ -21,7 +21,7 @@ try:
 except ImportError as e:
     raise ImportError("PyYAML is required: pip install PyYAML") from e
 
-from cli_anything.openclaw.core.macro_model import MacroDefinition, load_from_yaml
+from cli_anything.macrocli.core.macro_model import MacroDefinition, load_from_yaml
 
 
 class MacroRegistry:

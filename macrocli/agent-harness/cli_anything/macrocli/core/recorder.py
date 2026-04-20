@@ -1,7 +1,7 @@
 """Macro recorder — record GUI interactions and generate macro YAML.
 
 Usage:
-    cli-anything-openclaw macro record my_workflow
+    cli-anything-macrocli macro record my_workflow
 
 What it does:
   1. Starts listening for mouse clicks and keyboard events (pynput)

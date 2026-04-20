@@ -1,17 +1,17 @@
 ---
-name: cli-anything-openclaw
+name: "cli-anything-macrocli"
 description: >
   Use when the agent wants to define, list, inspect, or execute GUI macros
-  via the OpenClaw Macro System CLI. Macros are parameterized, CLI-callable
+  via the MacroCLI System CLI. Macros are parameterized, CLI-callable
   workflows — the agent invokes `macro run <name>` and the system handles
   backend routing (plugin, file transform, accessibility, compiled GUI replay).
 ---
 
-# OpenClaw Macro System CLI
+# MacroCLI System CLI
 
 ## What It Is
 
-The OpenClaw Macro System converts valuable GUI workflows into parameterized,
+The MacroCLI System converts valuable GUI workflows into parameterized,
 CLI-callable macros. Agents **never touch the GUI directly** — they call macros
 through this stable CLI, and the runtime routes execution to the best available
 backend (native plugin/API, file transformation, semantic UI control, or
@@ -20,7 +20,7 @@ precompiled GUI macro replay).
 ## Installation
 
 ```bash
-cd openclaw-skill/agent-harness
+cd macrocli-skill/agent-harness
 pip install -e .
 ```
 
@@ -30,21 +30,21 @@ pip install -e .
 
 ```bash
 # 1. See what macros are available
-cli-anything-openclaw macro list --json
+cli-anything-macrocli macro list --json
 
 # 2. Inspect a macro's parameters
-cli-anything-openclaw macro info export_file --json
+cli-anything-macrocli macro info export_file --json
 
 # 3. Dry-run to check params without side effects
-cli-anything-openclaw --dry-run macro run export_file \
+cli-anything-macrocli --dry-run macro run export_file \
     --param output=/tmp/test.txt --json
 
 # 4. Execute a macro
-cli-anything-openclaw macro run export_file \
+cli-anything-macrocli macro run export_file \
     --param output=/tmp/result.txt --json
 
 # 5. See what backends are available
-cli-anything-openclaw backends --json
+cli-anything-macrocli backends --json
 ```
 
 ## Command Reference
@@ -80,7 +80,7 @@ cli-anything-openclaw backends --json
 ### `backends`
 
 ```bash
-cli-anything-openclaw backends --json
+cli-anything-macrocli backends --json
 # Shows: native_api, file_transform, semantic_ui, gui_macro, recovery
 # and whether each is available in the current environment.
 ```
@@ -90,7 +90,7 @@ cli-anything-openclaw backends --json
 Pass parameters with `--param key=value`. Repeat for multiple:
 
 ```bash
-cli-anything-openclaw macro run transform_json \
+cli-anything-macrocli macro run transform_json \
     --param file=/path/to/data.json \
     --param key=settings.theme \
     --param value=dark \
@@ -136,12 +136,12 @@ Backends are selected automatically based on the macro step definition:
 
 ## Writing Macros
 
-Macros are YAML files in `cli_anything/openclaw/macro_definitions/`.
+Macros are YAML files in `cli_anything/macrocli/macro_definitions/`.
 Scaffold one with:
 
 ```bash
-cli-anything-openclaw macro define my_macro --output \
-    cli_anything/openclaw/macro_definitions/examples/my_macro.yaml
+cli-anything-macrocli macro define my_macro --output \
+    cli_anything/macrocli/macro_definitions/examples/my_macro.yaml
 ```
 
 Minimal schema:
@@ -197,19 +197,19 @@ agent_hints:
 
 ```bash
 # Step 1: What's available?
-cli-anything-openclaw macro list --json
+cli-anything-macrocli macro list --json
 
 # Step 2: What params does transform_json need?
-cli-anything-openclaw macro info transform_json --json
+cli-anything-macrocli macro info transform_json --json
 
 # Step 3: Test safely
-cli-anything-openclaw --dry-run macro run transform_json \
+cli-anything-macrocli --dry-run macro run transform_json \
     --param file=/tmp/config.json \
     --param key=theme \
     --param value=dark --json
 
 # Step 4: Execute for real
-cli-anything-openclaw macro run transform_json \
+cli-anything-macrocli macro run transform_json \
     --param file=/tmp/config.json \
     --param key=theme \
     --param value=dark --json

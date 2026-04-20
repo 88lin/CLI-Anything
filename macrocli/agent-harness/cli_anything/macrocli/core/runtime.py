@@ -23,16 +23,16 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from cli_anything.openclaw.core.macro_model import (
+from cli_anything.macrocli.core.macro_model import (
     MacroCondition,
     MacroDefinition,
     MacroStep,
     substitute,
 )
-from cli_anything.openclaw.core.registry import MacroRegistry
-from cli_anything.openclaw.core.routing import RoutingEngine
-from cli_anything.openclaw.core.session import ExecutionSession, RunRecord
-from cli_anything.openclaw.backends.base import BackendContext, StepResult
+from cli_anything.macrocli.core.registry import MacroRegistry
+from cli_anything.macrocli.core.routing import RoutingEngine
+from cli_anything.macrocli.core.session import ExecutionSession, RunRecord
+from cli_anything.macrocli.backends.base import BackendContext, StepResult
 
 
 # ── Result types ─────────────────────────────────────────────────────────────
