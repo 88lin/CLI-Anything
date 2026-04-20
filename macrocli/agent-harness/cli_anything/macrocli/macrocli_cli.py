@@ -175,18 +175,44 @@ def macro():
 @click.argument("name")
 @click.option("--param", "-p", multiple=True,
               help="Macro parameter in key=value format. Repeat for multiple.")
+@click.option("--macro-file", default=None,
+              help="Run a macro directly from a YAML file path (bypasses registry).")
 @handle_error
-def macro_run(name, param):
-    """Execute a macro by name.
+def macro_run(name, param, macro_file):
+    """Execute a macro by name, or from a YAML file with --macro-file.
 
     \b
     Example:
       macro run export_file --param output=/tmp/out.txt
-      macro run export_file -p output=/tmp/out.txt -p format=plain --json
+      macro run my_macro --macro-file /tmp/recording/my_macro.yaml --param key=val
     """
     params = _parse_params(param)
-    runtime = get_runtime()
-    result = runtime.execute(name, params, dry_run=_dry_run)
+
+    if macro_file:
+        # Load macro directly from file, bypassing the registry
+        from cli_anything.macrocli.core.macro_model import load_from_yaml
+        from cli_anything.macrocli.core.routing import RoutingEngine
+        from cli_anything.macrocli.core.runtime import MacroRuntime, ExecutionResult
+        from cli_anything.macrocli.core.registry import MacroRegistry
+        try:
+            macro_def = load_from_yaml(macro_file)
+        except Exception as e:
+            if _json_output:
+                click.echo(json.dumps({"success": False, "error": str(e)}))
+            else:
+                click.echo(f"Error loading macro file: {e}", err=True)
+            if not _repl_mode:
+                sys.exit(1)
+            return
+        reg = MacroRegistry.__new__(MacroRegistry)
+        reg._cache = {macro_def.name: macro_def}
+        reg._scanned = True
+        reg.macros_dir = None
+        runtime = MacroRuntime(registry=reg, session=get_session())
+        result = runtime.execute(macro_def.name, params, dry_run=_dry_run)
+    else:
+        runtime = get_runtime()
+        result = runtime.execute(name, params, dry_run=_dry_run)
 
     if _json_output:
         output(result.to_dict())

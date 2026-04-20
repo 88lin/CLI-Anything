@@ -73,6 +73,14 @@ from cli_anything.macrocli.backends.base import Backend, BackendContext, StepRes
 from cli_anything.macrocli.core.macro_model import MacroStep, substitute
 
 
+def _x_env() -> dict:
+    """Return env dict with DISPLAY set, for subprocess calls to X tools."""
+    env = os.environ.copy()
+    if "DISPLAY" not in env:
+        env["DISPLAY"] = ":0"
+    return env
+
+
 # ── lazy imports (only needed when backend is actually used) ──────────────────
 
 def _require_numpy():
@@ -226,7 +234,7 @@ def _get_window_bounds(title_fragment: str) -> Optional[dict]:
         # Try wmctrl first (most reliable)
         if shutil.which("wmctrl"):
             r = subprocess.run(
-                ["wmctrl", "-lG"], capture_output=True, text=True
+                ["wmctrl", "-lG"], capture_output=True, text=True, env=_x_env()
             )
             for line in r.stdout.splitlines():
                 parts = line.split(None, 9)
@@ -241,7 +249,7 @@ def _get_window_bounds(title_fragment: str) -> Optional[dict]:
         if shutil.which("xwininfo"):
             r = subprocess.run(
                 ["xwininfo", "-name", title_fragment],
-                capture_output=True, text=True
+                capture_output=True, text=True, env=_x_env()
             )
             bounds = {}
             for line in r.stdout.splitlines():

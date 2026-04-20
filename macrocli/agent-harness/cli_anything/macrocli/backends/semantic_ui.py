@@ -53,6 +53,7 @@ Example YAML steps:
 
 from __future__ import annotations
 
+import os
 import platform
 import shutil
 import subprocess
@@ -63,6 +64,14 @@ from cli_anything.macrocli.backends.base import Backend, BackendContext, StepRes
 from cli_anything.macrocli.core.macro_model import MacroStep, substitute
 
 _SYSTEM = platform.system()
+
+
+def _x_env() -> dict:
+    """Return env dict with DISPLAY set, for subprocess calls to X tools."""
+    env = os.environ.copy()
+    if "DISPLAY" not in env:
+        env["DISPLAY"] = ":0"
+    return env
 
 
 # ── AT-SPI helpers (Linux) ────────────────────────────────────────────────────
@@ -161,13 +170,13 @@ def _xdotool_key(keys: str) -> None:
     if not shutil.which("xdotool"):
         raise RuntimeError("xdotool not found. Install with: apt install xdotool")
     # ctrl+shift+e → ctrl+shift+e (xdotool accepts this format directly)
-    subprocess.run(["xdotool", "key", "--clearmodifiers", keys], check=True)
+    subprocess.run(["xdotool", "key", "--clearmodifiers", keys], check=True, env=_x_env())
 
 
 def _xdotool_type(text: str) -> None:
     if not shutil.which("xdotool"):
         raise RuntimeError("xdotool not found. Install with: apt install xdotool")
-    subprocess.run(["xdotool", "type", "--clearmodifiers", "--delay", "30", text], check=True)
+    subprocess.run(["xdotool", "type", "--clearmodifiers", "--delay", "30", text], check=True, env=_x_env())
 
 
 def _xdotool_focus(title: str) -> None:
@@ -175,7 +184,7 @@ def _xdotool_focus(title: str) -> None:
         raise RuntimeError("xdotool not found. Install with: apt install xdotool")
     subprocess.run(
         ["xdotool", "search", "--name", title, "windowfocus", "--sync"],
-        check=True,
+        check=True, env=_x_env(),
     )
 
 
@@ -443,14 +452,14 @@ class SemanticUIBackend(Backend):
             while time.time() < deadline:
                 if shutil.which("wmctrl"):
                     r = subprocess.run(
-                        ["wmctrl", "-l"], capture_output=True, text=True
+                        ["wmctrl", "-l"], capture_output=True, text=True, env=_x_env()
                     )
                     if title.lower() in r.stdout.lower():
                         return {"found": title, "method": "wmctrl"}
                 elif shutil.which("xdotool"):
                     r = subprocess.run(
                         ["xdotool", "search", "--name", title],
-                        capture_output=True, text=True,
+                        capture_output=True, text=True, env=_x_env(),
                     )
                     if r.returncode == 0 and r.stdout.strip():
                         return {"found": title, "method": "xdotool"}
@@ -502,7 +511,7 @@ class SemanticUIBackend(Backend):
 
         if _SYSTEM == "Linux":
             if shutil.which("wmctrl"):
-                subprocess.run(["wmctrl", "-a", title], check=True)
+                subprocess.run(["wmctrl", "-a", title], check=True, env=_x_env())
                 return {"focused": title, "method": "wmctrl"}
             _xdotool_focus(title)
             return {"focused": title, "method": "xdotool"}
