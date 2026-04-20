@@ -44,6 +44,24 @@ setup(
             "pytest>=7.0.0",
             "pytest-cov>=4.0.0",
         ],
+        "visual": [
+            "mss>=9.0.0",
+            "Pillow>=10.0.0",
+            "numpy>=1.24.0",
+            "pynput>=1.7.0",
+        ],
+        "gemini": [
+            "google-generativeai>=0.8.0",
+            "mss>=9.0.0",
+            "Pillow>=10.0.0",
+        ],
+        "all": [
+            "mss>=9.0.0",
+            "Pillow>=10.0.0",
+            "numpy>=1.24.0",
+            "pynput>=1.7.0",
+            "google-generativeai>=0.8.0",
+        ],
     },
     entry_points={
         "console_scripts": [

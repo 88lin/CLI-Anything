@@ -3,6 +3,7 @@
 Priority order (higher = preferred):
   native_api     100
   gui_macro       80
+  visual_anchor   75
   file_transform  70
   semantic_ui     50
   recovery        10  (only via explicit backend: recovery, or auto-retry)
@@ -19,6 +20,7 @@ from cli_anything.openclaw.backends.native_api import NativeAPIBackend
 from cli_anything.openclaw.backends.file_transform import FileTransformBackend
 from cli_anything.openclaw.backends.semantic_ui import SemanticUIBackend
 from cli_anything.openclaw.backends.gui_macro import GUIMacroBackend
+from cli_anything.openclaw.backends.visual_anchor import VisualAnchorBackend
 from cli_anything.openclaw.backends.recovery import RecoveryBackend
 from cli_anything.openclaw.core.macro_model import MacroStep
 
@@ -26,6 +28,7 @@ from cli_anything.openclaw.core.macro_model import MacroStep
 _BACKEND_PRIORITY: dict[str, int] = {
     "native_api":     100,
     "gui_macro":       80,
+    "visual_anchor":   75,
     "file_transform":  70,
     "semantic_ui":     50,
     "recovery":        10,
@@ -42,6 +45,7 @@ class RoutingEngine:
             "file_transform": FileTransformBackend(),
             "semantic_ui":    SemanticUIBackend(),
             "gui_macro":      GUIMacroBackend(),
+            "visual_anchor":  VisualAnchorBackend(),
             "recovery":       self._recovery,
         }
         # Wire recovery with all other backends so it can delegate

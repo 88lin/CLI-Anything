@@ -169,7 +169,7 @@ class MacroDefinition:
             errors.append("Macro name is required.")
         if not self.steps:
             errors.append(f"Macro '{self.name}' has no steps.")
-        valid_backends = {"native_api", "file_transform", "semantic_ui", "gui_macro", "recovery"}
+        valid_backends = {"native_api", "file_transform", "semantic_ui", "gui_macro", "recovery", "visual_anchor"}
         for i, step in enumerate(self.steps):
             if step.backend not in valid_backends:
                 errors.append(
