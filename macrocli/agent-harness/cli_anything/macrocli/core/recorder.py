@@ -63,15 +63,34 @@ class RecordedStep:
     dy: int = 0
     # timing
     timestamp: float = field(default_factory=time.time)
+    # agent step fields (set during post-recording review)
+    is_agent_step: bool = False
+    agent_description: str = ""
+    agent_end_state_description: str = ""
+    agent_end_state_snapshot: str = ""  # relative path to snapshot png
 
     def to_step_dict(self) -> dict:
         """Convert to a macro YAML step dict.
 
-        Strategy for clicks:
-          1. If we have a window title → use click_relative (most robust)
-          2. If we have a good template → use click_image
-          3. Fallback → click_relative using screen percentages
+        If marked as agent step, emits a gui_agent/instruct step.
+        Otherwise uses visual_anchor with window-relative coords or template.
         """
+        # Agent step overrides everything
+        if self.is_agent_step:
+            params: dict = {
+                "description": self.agent_description,
+                "end_state_description": self.agent_end_state_description,
+                "max_steps": 8,
+            }
+            if self.agent_end_state_snapshot:
+                params["end_state_snapshot"] = self.agent_end_state_snapshot
+            return {
+                "id": f"step_{self.index:03d}_agent",
+                "backend": "gui_agent",
+                "action": "instruct",
+                "params": params,
+                "on_failure": "fail",
+            }
         if self.kind == "click":
             if self.window_title:
                 # Best case: window-relative fractional coordinates
@@ -560,6 +579,142 @@ class MacroRecorder:
         )
         print(f"[recorder] Saved macro to: {output_path}", flush=True)
         return output_path
+
+    def save_as_package(
+        self,
+        output_dir: Optional[str] = None,
+        parameters: Optional[dict] = None,
+    ) -> str:
+        """Save as a macro package folder:
+            <macro_name>/
+              macro.yaml
+              snapshots/
+                step_XXX_end_state.png  (copied from recorded locations)
+
+        Returns path to macro.yaml.
+        """
+        pkg_dir = Path(output_dir or self.output_dir) / self.macro_name
+        pkg_dir.mkdir(parents=True, exist_ok=True)
+        snapshots_dir = pkg_dir / "snapshots"
+        snapshots_dir.mkdir(exist_ok=True)
+
+        # Copy any end_state snapshots into the package and update paths
+        for step in self._steps:
+            if step.is_agent_step and step.agent_end_state_snapshot:
+                src = Path(step.agent_end_state_snapshot)
+                if src.is_file():
+                    dst = snapshots_dir / src.name
+                    import shutil
+                    if src.resolve() != dst.resolve():
+                        shutil.copy2(src, dst)
+                    # Update path to be relative to macro.yaml
+                    step.agent_end_state_snapshot = f"snapshots/{src.name}"
+
+        yaml_path = str(pkg_dir / "macro.yaml")
+        Path(yaml_path).write_text(
+            self.to_yaml(parameters=parameters), encoding="utf-8"
+        )
+        print(f"[recorder] Saved macro package to: {pkg_dir}/", flush=True)
+        return yaml_path
+
+    # ── Agent step review ─────────────────────────────────────────────────────
+
+    def interactive_agent_review(self, snapshots_dir: Optional[str] = None) -> None:
+        """Interactively review all steps and mark some as agent steps.
+
+        For each step the user can:
+          - Press Enter → keep as fixed step
+          - Type 'a'   → mark as agent step, then provide description,
+                         end_state_description, and take a snapshot
+
+        snapshots_dir: where to save end_state snapshots (default: output_dir/snapshots)
+        """
+        snap_dir = Path(snapshots_dir or self.output_dir / "snapshots")
+        snap_dir.mkdir(parents=True, exist_ok=True)
+
+        print()
+        print("─" * 60)
+        print("  Step Review — mark steps as 'fixed' or 'agent'")
+        print("  Enter = fixed (fast, deterministic)")
+        print("  a     = agent step (Gemini decides at runtime)")
+        print("─" * 60)
+
+        for i, step in enumerate(self._steps):
+            # Build a human-readable description of the step
+            if step.kind == "click":
+                step_desc = f"click {step.window_title or 'screen'} ({step.x_pct:.2f}, {step.y_pct:.2f})"
+            elif step.kind == "type":
+                preview = step.text[:40] + "..." if len(step.text) > 40 else step.text
+                step_desc = f"type_text {preview!r}"
+            elif step.kind == "hotkey":
+                step_desc = f"hotkey {step.keys}"
+            elif step.kind == "scroll":
+                step_desc = f"scroll dy={step.dy}"
+            else:
+                step_desc = step.kind
+
+            print(f"\n  [{i+1}/{len(self._steps)}] {step_desc}")
+
+            try:
+                choice = input("  → fixed or agent? [Enter=fixed / a=agent]: ").strip().lower()
+            except (EOFError, KeyboardInterrupt):
+                print()
+                break
+
+            if choice != "a":
+                continue
+
+            # Mark as agent step
+            step.is_agent_step = True
+
+            try:
+                step.agent_description = input(
+                    "  → Describe what this step needs to do:\n    "
+                ).strip()
+                step.agent_end_state_description = input(
+                    "  → Describe the target end state (what should the screen show):\n    "
+                ).strip()
+            except (EOFError, KeyboardInterrupt):
+                print()
+                break
+
+            # Capture end-state snapshot
+            print("  → Now manually operate the UI to reach the end state.")
+            try:
+                input("    Press Enter when ready to take snapshot...")
+            except (EOFError, KeyboardInterrupt):
+                print()
+                continue
+
+            snapshot_path = str(snap_dir / f"step_{step.index:03d}_end_state.png")
+            if self._capture_end_state_snapshot(snapshot_path):
+                step.agent_end_state_snapshot = snapshot_path
+                print(f"  ✓ Snapshot saved: {snapshot_path}")
+            else:
+                print("  ⚠ Snapshot failed — no snapshot will be used for this step.")
+
+        print()
+        print("─" * 60)
+        agent_count = sum(1 for s in self._steps if s.is_agent_step)
+        fixed_count = len(self._steps) - agent_count
+        print(f"  Review complete: {fixed_count} fixed, {agent_count} agent steps")
+        print("─" * 60)
+
+    def _capture_end_state_snapshot(self, output_path: str) -> bool:
+        """Capture the current screen and save as end-state snapshot."""
+        try:
+            import mss
+            from PIL import Image
+            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+            with mss.mss() as sct:
+                monitor = sct.monitors[1]
+                raw = sct.grab(monitor)
+                img = Image.frombytes("RGB", raw.size, raw.bgra, "raw", "BGRX")
+                img.save(output_path)
+            return True
+        except Exception as e:
+            print(f"[recorder] Snapshot failed: {e}", file=sys.stderr)
+            return False
 
     # ── Parameterization ──────────────────────────────────────────────────────
 

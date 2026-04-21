@@ -5,6 +5,7 @@ Priority order (higher = preferred):
   gui_macro       80
   visual_anchor   75
   file_transform  70
+  gui_agent       60
   semantic_ui     50
   recovery        10  (only via explicit backend: recovery, or auto-retry)
 
@@ -22,6 +23,7 @@ from cli_anything.macrocli.backends.semantic_ui import SemanticUIBackend
 from cli_anything.macrocli.backends.gui_macro import GUIMacroBackend
 from cli_anything.macrocli.backends.visual_anchor import VisualAnchorBackend
 from cli_anything.macrocli.backends.recovery import RecoveryBackend
+from cli_anything.macrocli.backends.gui_agent import GUIAgentBackend
 from cli_anything.macrocli.core.macro_model import MacroStep
 
 
@@ -30,6 +32,7 @@ _BACKEND_PRIORITY: dict[str, int] = {
     "gui_macro":       80,
     "visual_anchor":   75,
     "file_transform":  70,
+    "gui_agent":       60,
     "semantic_ui":     50,
     "recovery":        10,
 }
@@ -46,6 +49,7 @@ class RoutingEngine:
             "semantic_ui":    SemanticUIBackend(),
             "gui_macro":      GUIMacroBackend(),
             "visual_anchor":  VisualAnchorBackend(),
+            "gui_agent":      GUIAgentBackend(),
             "recovery":       self._recovery,
         }
         # Wire recovery with all other backends so it can delegate
