@@ -118,10 +118,12 @@ What was added:
   - saved scene JSON fingerprint polling with automatic preview recapture
   - demo tooling for `blender`:
   - `docs/scripts/blender_orbital_relay_drone_demo.py`
+  - `docs/scripts/blender_preview_story_demo.py`
   - scenarios:
     - `orbital-relay-drone`
     - real staged preview bundles
     - real turntable motion video
+    - polished build-story video with turntable ending
 - `cli-hub` live viewer surface:
   - `preview inspect` now understands live sessions
   - `preview html` now renders live-session HTML
