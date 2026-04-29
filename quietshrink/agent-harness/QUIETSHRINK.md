@@ -17,9 +17,9 @@ All commands accept `--json` for machine-readable output and exit with proper er
 
 Screen recording compression is a frequent agent task: "compress this screencast before sharing", "make this file smaller", "convert recording.mov for email". The agent needs deterministic, predictable behavior:
 
-- Hardware encoding → stays under any budget; computer remains responsive  
-- Smart frame deduplication → exploits the static nature of screen content  
-- Long GOP + adaptive quantization → matches software-encoder size at hardware speed  
+- Hardware encoding → stays under any budget; computer remains responsive
+- Smart frame deduplication → exploits the static nature of screen content
+- Long GOP + adaptive quantization → matches software-encoder size at hardware speed
 - SSIM-validated quality presets → the agent can pick a preset based on the user's goal (sharing vs archiving)
 
 ## Install
