@@ -170,6 +170,8 @@
 /nsight-graphics/.*
 /lldb/*
 /lldb/.*
+/sbox/*
+/sbox/.*
 
 # Step 6: ...except agent-harness/
 !/gimp/agent-harness/
