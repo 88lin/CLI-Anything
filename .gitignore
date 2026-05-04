@@ -83,6 +83,8 @@
 !/nsight-graphics/
 !/lldb/
 !/macrocli/
+!/sbox/
+!/quietshrink/
 
 # Step 5: Inside each software dir, ignore everything (including dotfiles)
 /gimp/*
@@ -173,6 +175,10 @@
 /lldb/.*
 /macrocli/*
 /macrocli/.*
+/sbox/*
+/sbox/.*
+/quietshrink/*
+/quietshrink/.*
 
 # Step 6: ...except agent-harness/
 !/gimp/agent-harness/
@@ -225,6 +231,8 @@
 !/nsight-graphics/agent-harness/
 !/lldb/agent-harness/
 !/macrocli/agent-harness/
+!/sbox/agent-harness/
+!/quietshrink/agent-harness/
 
 # Exclude non-gedit demo macros from macrocli (local only)
 /macrocli/agent-harness/cli_anything/macrocli/macro_definitions/demo/flameshot*

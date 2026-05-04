@@ -40,7 +40,7 @@ Agent
 | L5 | Macro Execution Runtime | `core/runtime.py` |
 | L4 | Parameterized Macro Model | `core/macro_model.py` + `macro_definitions/*.yaml` |
 | L3 | Backend Routing Engine | `core/routing.py` |
-| L2 | Execution Backends | `backends/` (5 backends) |
+| L2 | Execution Backends | `backends/` (7 backends) |
 | L1 | Target Application | Any GUI-first or closed-source app |
 
 ## Execution Backends
@@ -49,7 +49,9 @@ Agent
 |---------|----------|---------|----------|
 | `native_api` | 100 | `backend: native_api` | subprocess / shell commands |
 | `gui_macro` | 80 | `backend: gui_macro` | precompiled coordinate replay (pyautogui) |
+| `visual_anchor` | 75 | `backend: visual_anchor` | template-matching click/type (requires `[visual]`) |
 | `file_transform` | 70 | `backend: file_transform` | XML, JSON, text file editing |
+| `gui_agent` | 60 | `backend: gui_agent` | vision-model-driven automation (requires `[gui_agent]`) |
 | `semantic_ui` | 50 | `backend: semantic_ui` | accessibility API + keyboard (xdotool) |
 | `recovery` | 10 | `backend: recovery` | retry + fallback orchestration |
 
@@ -135,8 +137,10 @@ macrocli/
         │   ├── native_api.py             subprocess backend
         │   ├── file_transform.py         XML/JSON/text backend
         │   ├── semantic_ui.py            accessibility backend
+        │   ├── visual_anchor.py          template-matching backend
+        │   ├── gui_agent.py              vision-model automation backend
         │   ├── gui_macro.py              compiled replay backend
-        │   └── recovery.py              retry/fallback backend
+        │   └── recovery.py               retry/fallback backend
         ├── skills/SKILL.md               Agent-readable skill definition
         ├── utils/repl_skin.py            Unified REPL skin (cli-anything standard)
         └── tests/
@@ -153,7 +157,26 @@ pip install -e .
 
 **Runtime dependencies:** Python 3.10+, PyYAML, click, prompt-toolkit.
 
-**Optional (for specific backends):**
+**Optional extras:**
+
+```bash
+pip install -e ".[visual]"      # visual_anchor backend (mss, Pillow, numpy, pynput)
+pip install -e ".[gui_agent]"   # gui_agent backend     (openai, mss, Pillow)
+pip install -e ".[all]"         # everything
+```
+
+**gui_agent backend configuration:**
+
+The `gui_agent` backend uses the OpenAI SDK and is compatible with any
+OpenAI-compatible API. Configure via environment variables:
+
+| Variable           | Description                                 |
+|--------------------|---------------------------------------------|
+| `MACROCLI_MODEL`   | Model name (required, e.g. `gpt-4o`)        |
+| `MACROCLI_API_KEY` | API key for the provider                    |
+| `MACROCLI_BASE_URL`| Base URL (only needed for non-OpenAI hosts) |
+
+**Other optional dependencies:**
 - `xdotool` — semantic_ui backend on Linux
 - `pyautogui` — gui_macro backend
 - `psutil` — richer process_running checks
@@ -172,9 +195,11 @@ python3 -m pytest cli_anything/macrocli/tests/ -v -s
 running code, inspectable via `macro info`, and editable without touching the
 harness source.
 
-**Why 5 backends?** Real GUI applications expose many different control
+**Why 7 backends?** Real GUI applications expose many different control
 surfaces. The routing engine picks the most reliable one available — the agent
-doesn't need to know which one ran.
+doesn't need to know which one ran. The `visual_anchor` backend uses template
+matching for robust UI element detection, while `gui_agent` uses vision models
+for dynamic decision-making when the UI state is unpredictable.
 
 **Why preconditions and postconditions?** Agents operate in environments where
 state is uncertain. Failing loudly before execution (preconditions) and
