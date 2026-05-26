@@ -1227,6 +1227,26 @@
           "url": "https://github.com/octo-patch"
         }
       ]
+    },
+    {
+      "name": "siyuan",
+      "display_name": "SiYuan CLI",
+      "version": "1.0.0",
+      "description": "Knowledge management and note-taking via SiYuan HTTP API — manage notebooks, documents, blocks, and search content from the command line",
+      "category": "knowledge-management",
+      "requires": "SiYuan running with HTTP API enabled (default http://127.0.0.1:6806)",
+      "homepage": "https://github.com/siyuan-note/siyuan",
+      "source_url": "https://github.com/HKUDS/CLI-Anything",
+      "install_strategy": "pip",
+      "install_cmd": "pip install git+https://github.com/HKUDS/CLI-Anything.git#subdirectory=siyuan/agent-harness",
+      "skill_md": "skills/cli-anything-siyuan/SKILL.md",
+      "entry_point": "cli-anything-siyuan",
+      "contributors": [
+        {
+          "name": "hito0512",
+          "url": "https://github.com/hito0512"
+        }
+      ]
     }
   ]
 }
