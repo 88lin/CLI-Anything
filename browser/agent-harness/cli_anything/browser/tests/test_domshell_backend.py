@@ -216,6 +216,24 @@ def test_is_error_detects_error_prefixed_text():
     assert backend._is_error(_make_result("✓ Focused\n[lane: 1]")) is False
 
 
+def test_is_error_strips_ansi_red_wrapper():
+    """DOMShell colours errors red — strip ANSI before prefix-matching.
+
+    Without this, a coloured error like `\\x1b[31mError: ...\\x1b[0m`
+    would be misread as success (its first chars are `\\x1b[31m`, not
+    `error`), letting downstream safety chains proceed.
+    """
+    assert backend._is_error(
+        _make_result("\x1b[31mError: focus: No such element\x1b[0m")
+    ) is True
+    # Plain `Error:` still detected.
+    assert backend._is_error(_make_result("Error: oops")) is True
+    # Mixed ANSI prefix without "Error" stays False.
+    assert backend._is_error(
+        _make_result("\x1b[32m✓ All good\x1b[0m")
+    ) is False
+
+
 def test_is_error_handles_missing_content():
     assert backend._is_error(SimpleNamespace()) is False
 
@@ -347,38 +365,92 @@ def test_type_text_emits_focus_then_type_with_session(mock_call):
 
 
 @patch.object(backend, "_call_execute", new_callable=AsyncMock)
-def test_type_text_absolute_path_wraps_focus(mock_call):
-    """Absolute focus path is anchored at %here% and restores wd."""
+def test_type_text_absolute_path_uses_four_separate_calls(mock_call):
+    """Absolute focus path: anchor → focus → type → restore, all distinct.
+
+    type_text is a safety chain, NOT a cleanup-line idiom: it must HALT
+    on focus failure rather than continue past it. Wrapping focus in a
+    multi-line ``cd %here%\\nfocus\\ncd <restore>`` would re-introduce
+    the continue-on-error trap (the anchor's leading "✓" masks the
+    focus error in the combined response). Split into four separate
+    _call_execute calls, all sharing the persisted lane via session.
+    """
     sess = _make_session(working_dir="/main")
     mock_call.return_value = _make_result("✓\n[lane: 1]")
 
-    backend.type_text("/main/input", "text", session=sess)
+    backend.type_text("/main/input", "hello", session=sess)
 
-    assert mock_call.call_count == 2
-    assert (
-        mock_call.call_args_list[0].args[0]
-        == "cd %here%\nfocus main/input\ncd %here%/main"
-    )
-    assert mock_call.call_args_list[1].args[0] == "type text"
+    assert mock_call.call_count == 4
+    assert mock_call.call_args_list[0].args[0] == "cd %here%"
+    assert mock_call.call_args_list[1].args[0] == "focus main/input"
+    assert mock_call.call_args_list[2].args[0] == "type hello"
+    assert mock_call.call_args_list[3].args[0] == "cd %here%/main"
 
 
 @patch.object(backend, "_call_execute", new_callable=AsyncMock)
-def test_type_text_skips_type_on_focus_error(mock_call):
-    """If focus errors, type MUST NOT run — would land in stale focus."""
+def test_type_text_absolute_path_focus_failure_skips_type_and_restores(mock_call):
+    """The Codex P2 safety case: a stale absolute focus path must halt
+    before type can dispatch keys into whatever was previously focused.
+    The restore still runs so the lane cwd ends up where the harness
+    expects.
+    """
+    sess = _make_session(working_dir="/main")
+    mock_call.side_effect = [
+        _make_result("✓ Entered tab 123\n[lane: 1]"),                 # cd anchor ok
+        _make_result("\x1b[31mError: focus: No such element\x1b[0m"),  # focus fails
+        _make_result("✓ Typed\n[lane: 1]"),                            # MUST NOT be reached
+        _make_result("✓\n[lane: 1]"),                                   # restore
+    ]
+
+    backend.type_text("/main/missing", "secret_password", session=sess)
+
+    # Three calls: anchor, focus, restore. Type is skipped because the
+    # focus error halts the safety chain before keys are dispatched.
+    assert mock_call.call_count == 3
+    assert mock_call.call_args_list[0].args[0] == "cd %here%"
+    assert mock_call.call_args_list[1].args[0] == "focus main/missing"
+    assert mock_call.call_args_list[2].args[0] == "cd %here%/main"
+    # Critically — the "type secret_password" command was never sent.
+    for call_args in mock_call.call_args_list:
+        assert "type" not in call_args.args[0].split("\n")[0]
+
+
+@patch.object(backend, "_call_execute", new_callable=AsyncMock)
+def test_type_text_anchor_failure_does_not_attempt_focus(mock_call):
+    """If even the anchor cd fails (e.g. chrome:// not debuggable),
+    neither focus nor type runs. No restore needed because we never
+    moved off the original cwd.
+    """
+    sess = _make_session(working_dir="/")
+    mock_call.return_value = _make_result(
+        "\x1b[31mError: chrome:// not debuggable\x1b[0m"
+    )
+
+    backend.type_text("/some/path", "text", session=sess)
+
+    assert mock_call.call_count == 1
+    assert mock_call.call_args_list[0].args[0] == "cd %here%"
+
+
+@patch.object(backend, "_call_execute", new_callable=AsyncMock)
+def test_type_text_relative_path_focus_failure_skips_type(mock_call):
+    """Relative path focus failure: no anchor (no drift to restore), so
+    just `focus`, then halt. Type MUST NOT run.
+
+    The absolute-path equivalent (with anchor + restore) is covered by
+    test_type_text_absolute_path_focus_failure_skips_type_and_restores.
+    """
     sess = _make_session(working_dir="/")
     mock_call.side_effect = [
         _make_result("Error: focus: No such element"),
         _make_result("✓ Typed"),  # should NOT be reached
     ]
 
-    result = backend.type_text("/stale/path", "secret_password", session=sess)
+    result = backend.type_text("stale_input", "secret_password", session=sess)
 
     # Only the focus call was made; the focus result was returned.
     assert mock_call.call_count == 1
-    # Absolute path → wrapped in anchor + restore.
-    assert mock_call.call_args_list[0].args[0] == (
-        "cd %here%\nfocus stale/path\ncd %here%"
-    )
+    assert mock_call.call_args_list[0].args[0] == "focus stale_input"
     # The focus result is returned verbatim so callers see the error.
     assert result.content[0].text == "Error: focus: No such element"
 

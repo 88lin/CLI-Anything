@@ -269,7 +269,19 @@ def _restore_cwd_cmd(session: Any) -> str:
 
 
 def _wrap_absolute(operation: str, session: Any, *, deeper: str = "") -> str:
-    """Build a ``cd %here%[/deeper]\\n<operation>\\n<restore>`` triplet.
+    """Build a ``cd %here%[/deeper]\\n<operation>\\n<restore>`` triplet for
+    absolute harness paths, so the operation runs against the tab root
+    regardless of lane cwd drift.
+
+    USE FOR cleanup-line idioms ONLY — operations whose error doesn't gate
+    further wrapper-side action (``ls``, ``cat``, ``click``, ``grep``).
+    DOMShell's multi-line semantics continue past per-line errors, which
+    is the correct property for "always run the restore" but the WRONG
+    property for **safety chains** where the second step depends on the
+    first step's success. For safety chains (e.g. ``type_text``'s
+    ``focus → type``), issue anchor / operation / restore as SEPARATE
+    ``_call_execute`` calls and ``_is_error``-check between them. See
+    ``type_text``'s absolute-path branch for the pattern.
 
     ``deeper`` is the optional tab-root-relative subdir to ``cd`` into
     BEFORE the operation. Used for ``ls /main`` where the operation is
@@ -284,14 +296,22 @@ def _wrap_absolute(operation: str, session: Any, *, deeper: str = "") -> str:
     return f"cd {_here_path(deeper)}\n{operation}\n{_restore_cwd_cmd(session)}"
 
 
+# CSI (ANSI) escape sequences DOMShell wraps error text in (typically red).
+# Strip them before prefix-matching "error" so an ANSI-coloured error line
+# isn't misread as success.
+_ANSI_CSI_RE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+
+
 def _is_error(result: Any) -> bool:
     """Best-effort check that a ``domshell_execute`` result represents an error.
 
     Inspects ``isError`` if the MCP SDK populated it, then ``isError`` /
     ``error`` keys on dict-shaped test fixtures, and finally scans the
-    concatenated text content for a leading "error". Robust to the raw
-    ``CallToolResult`` and to the ``SimpleNamespace(content=[...])``
-    fixtures used in tests.
+    concatenated text content for a leading "error" — with ANSI escape
+    sequences stripped first, since DOMShell colours error lines red
+    (``\\x1b[31mError: ...\\x1b[0m``). Robust to the raw
+    ``CallToolResult`` and to ``SimpleNamespace(content=[...])`` test
+    fixtures.
     """
     if hasattr(result, "isError") and result.isError:
         return True
@@ -307,6 +327,7 @@ def _is_error(result: Any) -> bool:
             piece = getattr(c, "text", None)
             if piece:
                 text += piece
+    text = _ANSI_CSI_RE.sub("", text)
     return text.strip().lower().startswith("error")
 
 
@@ -775,25 +796,54 @@ def type_text(
             "type_text: an input path is required — cannot focus the tab root."
         )
 
-    # Relies on DOMShell serializing commands within a lane: the `type`
-    # call below cannot be preempted by another agent's `focus` on the
-    # same lane between these two _call_execute boundaries. If that
-    # contract ever changes upstream, this needs to revert to a single
-    # multi-line call with an alternative safety story.
+    # type_text is a safety chain (focus → type), NOT a cleanup-line
+    # idiom (cd → op → cd back). Cleanup-line patterns want continue-on-
+    # error so the restore always runs. Safety chains want the opposite:
+    # halt on the first step's error so the second step doesn't dispatch
+    # against stale state. Wrapping focus inside `_wrap_absolute` (a
+    # multi-line continue-on-error script) re-introduces the trap the
+    # round-4 split was designed to prevent — the anchor's leading "✓"
+    # text in the combined response masks the focus error, and `type`
+    # would land in whatever was previously focused.
+    #
+    # So for absolute paths we anchor with a SEPARATE _call_execute
+    # (one-line `cd %here%`), check for error, focus as a separate call
+    # we can _is_error-check, then type, then restore as a separate
+    # best-effort call. All four share the persisted lane via session.
     if is_absolute:
-        # Anchor + focus + restore as one multi-line call, so the focus
-        # lands against the tab root regardless of lane cwd drift.
-        focus_cmd = _wrap_absolute(f"focus {_q(translated_path)}", session)
-    else:
-        focus_cmd = f"focus {_q(translated_path)}"
+        anchor_result = asyncio.run(_call_execute(
+            f"cd {_here_path('')}", use_daemon, session=session,
+        ))
+        if _is_error(anchor_result):
+            # Anchor failed — we never moved, so no restore is needed.
+            return anchor_result
+
     focus_result = asyncio.run(_call_execute(
-        focus_cmd, use_daemon, session=session,
+        f"focus {_q(translated_path)}", use_daemon, session=session,
     ))
     if _is_error(focus_result):
-        return focus_result  # don't type — focus didn't land
-    return asyncio.run(_call_execute(
+        # Focus failed — restore cwd before returning so the lane
+        # doesn't stay parked at the anchor (only relevant when we
+        # actually moved, i.e. the absolute path branch).
+        if is_absolute:
+            asyncio.run(_call_execute(
+                _restore_cwd_cmd(session), use_daemon, session=session,
+            ))
+        return focus_result
+
+    type_result = asyncio.run(_call_execute(
         f"type {_q(text)}", use_daemon, session=session,
     ))
+
+    if is_absolute:
+        # Best-effort restore — type already succeeded, so a restore
+        # failure is cosmetic. The next harness cd will correct any
+        # drift.
+        asyncio.run(_call_execute(
+            _restore_cwd_cmd(session), use_daemon, session=session,
+        ))
+
+    return type_result
 
 
 # ── Daemon control functions ───────────────────────────────────────────
